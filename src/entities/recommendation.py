@@ -7,13 +7,13 @@ class Recommendation:
         if len(title) < 1:
             raise Exception("Recommendation has to have a title of at least 2 characters")
 
-        self._title = title
+        self.__title = title
 
     def get_title(self):
-        return self._title
+        return self.__title
 
     def set_title(self, new_title):
         if len(new_title) < 1:
             raise Exception("Recommendation has to have a title of at least 2 characters")
 
-        self.title = new_title
+        self.__title = new_title
