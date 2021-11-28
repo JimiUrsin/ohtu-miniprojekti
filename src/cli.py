@@ -19,8 +19,6 @@ class CLI:
             while(True):
                 check = input(f'Add "{title}" to collection? 1: Yes, 2: No, reinput title, 0: Quit ')
                 if check=='1':
-                    if self.repository: #tää ehto on väliaikasesti testejä varten
-                        self.repository.add(title)
                     print(f'"{title}" was added!')
                     return True
                 if check=='2':

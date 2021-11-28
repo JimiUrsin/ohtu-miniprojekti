@@ -1,11 +1,11 @@
 import unittest
-from unittest.mock import patch, call
+from unittest.mock import patch, call, Mock, ANY
 from cli import CLI
 
 class TestCLI(unittest.TestCase):
 
     def setUp(self):
-        self.UI = CLI(None)
+        self.UI = CLI(Mock())
 
     @patch('builtins.input', side_effect = ['1', 'Book Name', '1', '0'])
     @patch('builtins.print')
