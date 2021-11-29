@@ -56,7 +56,7 @@ class RecommendationRepository:
 
         return result
 
-    def insert_recommendation(self, title):
+    def insert_recommendation(self, title, recom_type):
         """Inserts a recommendation to database with title
 
         Args:
@@ -66,9 +66,9 @@ class RecommendationRepository:
             None if success, sqlite3.OperationalError object if db error
         """
 
-        query = "INSERT INTO Recommendations (title) VALUES (?)"
+        query = "INSERT INTO Recommendations (title, type) VALUES (?,?)"
 
-        return self._write_db(query, [title])
+        return self._write_db(query, [title, recom_type])
 
     def empty_tables(self):
         """Empties whole Recommendations table from database"""
