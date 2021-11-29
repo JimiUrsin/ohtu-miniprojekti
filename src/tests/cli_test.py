@@ -23,8 +23,8 @@ class TestCLI(unittest.TestCase):
 
 
     @patch('builtins.input', side_effect=['2', '0'])
-    def test_fetch_all_method_called(self, mock_input):
-        self.mock_service.fetch_all.return_value = ['']
+    def test_get_recommendations_method_called(self, mock_input):
+        self.mock_service.get_recommendations.return_value = ['']
         self.UI.start()
-        self.mock_service.fetch_all.assert_called()
+        self.mock_service.get_recommendations.assert_called()
 

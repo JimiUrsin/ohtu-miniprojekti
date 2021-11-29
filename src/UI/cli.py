@@ -32,7 +32,7 @@ class CLI:
                     return False
 
     def browse(self):
-        all_items = self.service.fetch_all()
+        all_items = self.service.get_recommendations()
         print('You have saved the following recommendations:')
         for title in all_items:
             print(title)
