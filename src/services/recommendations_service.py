@@ -20,9 +20,9 @@ class RecommendationService:
 
         return recommendation      
 
-    def get_title(self):
-        return self.__title
-
+    def get_recommendations(self):
+        
+        return self._recommendation_repository.find_all_recommendations()
 
     def validate(self, title, recom_type):
         if len(title) < 1:
