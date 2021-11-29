@@ -1,7 +1,7 @@
 class CLI:
 
-    def __init__(self, repository):
-        self.repository = repository
+    def __init__(self, service):
+        self.service = service
 
     def start(self):
         print('Welcome! Choose an action: ')

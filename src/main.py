@@ -3,8 +3,8 @@ from cli import CLI
 
 def main():
     print("Hello world!")
-    repository = None
-    UI = CLI(repository)
+    service = None
+    UI = CLI(service)
     UI.start()
 
 
