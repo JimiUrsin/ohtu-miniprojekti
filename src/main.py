@@ -1,4 +1,5 @@
 from cli import CLI
+from entities.recommendation import Recommendation
 
 
 def main():
