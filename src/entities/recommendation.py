@@ -1,19 +1,14 @@
 class Recommendation:
-    """
-    A single reading / watching / listening recommendation
-    """
+    """Class that descripes an individual recommendation.
+    
+    Attributes:
+        title: A string value that describes the recommendation's title.
+        type:  A string value that describes what type of a recommendation is.
+        """
 
-    def __init__(self, title):
-        if len(title) < 1:
-            raise Exception("Recommendation has to have a title of at least 2 characters")
 
-        self.__title = title
+    def __init__(self, title, recom_type):
+        """Constructor that creates a new recommendation"""
 
-    def get_title(self):
-        return self.__title
-
-    def set_title(self, new_title):
-        if len(new_title) < 1:
-            raise Exception("Recommendation has to have a title of at least 2 characters")
-
-        self.__title = new_title
+        self.title = title
+        self.type = recom_type

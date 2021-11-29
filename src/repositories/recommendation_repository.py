@@ -145,3 +145,5 @@ class RecommendationRepository:
         
         except self.connection.Error as error:
             return error
+
+recommendation_repository = RecommendationRepository(get_database_connection)
