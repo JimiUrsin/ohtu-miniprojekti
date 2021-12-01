@@ -1,5 +1,5 @@
 class Recommendation:
-    """Class that descripes an individual recommendation.
+    """Class that describes an individual recommendation.
     
     Attributes:
         title: A string value that describes the recommendation's title.
