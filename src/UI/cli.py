@@ -1,13 +1,14 @@
 class CLI:
 
-    def __init__(self, service):
+    def __init__(self, service, io):
         self.service = service
+        self.io = io
 
     def start(self):
-        print('Welcome! Choose an action: ')
+        self.io.write('Welcome! Choose an action: ')
         continue_loop = True
         while(continue_loop):
-            action = input(
+            action = self.io.read(
                 '1: Add a recommendation, 2: Browse recommendations, 0: Quit ')
             if action == '0':
                 break
@@ -18,14 +19,14 @@ class CLI:
 
     def _add_new(self):
         while(True):
-            title = input('Title of the item: ')
+            title = self.io.read('Title of the item: ')
             recom_type = self._input_type()
             while(True):
-                check = input(
+                check = self.io.read(
                     f'Is "{title}", a {recom_type}, correct? 1: Yes, 2: No, reinput information, 0: Quit ')
                 if check == '1':
                     self.service.create_new_recommendation(title, recom_type)
-                    print(f'"{title}" was added!')
+                    self.io.write(f'"{title}" was added!')
                     return True
                 if check == '2':
                     break
@@ -35,7 +36,7 @@ class CLI:
     def _input_type(self):
         type_input = None
         while True:
-            type_input = input(
+            type_input = self.io.read(
                 'Choose the type of the item. 1: book, 2: video, 3: blog, 4: podcast ')
             if type_input == '1':
                 return 'book'
@@ -49,8 +50,8 @@ class CLI:
     def _browse(self):
         all_items = self.service.get_recommendations()
         if not all_items or len(all_items) < 1:
-            print('You have no recommendations saved.')
+            self.io.write('You have no recommendations saved.')
         else:
-            print('You have saved the following recommendations:')
+            self.io.write('You have saved the following recommendations:')
             for title in all_items:
-                print(title)
+                self.io.write(title)
