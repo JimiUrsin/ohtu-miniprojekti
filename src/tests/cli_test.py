@@ -26,19 +26,16 @@ class TestCLI(unittest.TestCase):
         self.mock_service.get_recommendations.return_value = []
         self.UI.start()
         self.mock_service.get_recommendations.assert_called()
-"""
-    @patch('builtins.input', side_effect=['2', '0'])
-    @patch('builtins.print')
-    def test_correct_print_when_no_recommendations(self, mock_input, mock_print):
+
+    def test_correct_print_when_no_recommendations(self):
+        self.mock_io.read.side_effect=["2", "0"]
         self.mock_service.get_recommendations.return_value = []
         self.UI.start()
-        mock_print.assert_has_calls(
-            [call('You have no recommendations saved.')])
+        self.mock_io.write.assert_any_call('You have no recommendations saved.')
 
-    @patch('builtins.input', side_effect=['2', '0'])
-    @patch('builtins.print')
-    def test_recommendations_printed_correctly(self, mock_input, mock_print):
+    def test_recommendations_printed_correctly(self):
+        self.mock_io.read.side_effect=["2", "0"]
         self.mock_service.get_recommendations.return_value = ['ABC', '123']
         self.UI.start()
-        mock_print.assert_has_calls(
-            [call('ABC'), call('123')]) """
+        self.mock_io.write.assert_has_calls(
+            [call('ABC'), call('123')])
