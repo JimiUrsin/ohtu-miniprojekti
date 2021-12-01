@@ -5,6 +5,7 @@ on:
     branches:
       - main
       - development
+      - add-robot-framework   # Remove before merge
 
 jobs:
   build:
@@ -27,4 +28,4 @@ jobs:
         run: poetry run pytest src/tests
       - name: Run robot tests
         if: always()
-        run: poetry run robot --runemptysuite src/tests
+        run: poetry run robot src/tests
