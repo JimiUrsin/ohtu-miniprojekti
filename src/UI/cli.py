@@ -12,18 +12,19 @@ class CLI:
             if action == '0':
                 break
             if action == '1':
-                continue_loop = self.add_new()
+                continue_loop = self._add_new()
             if action == '2':
-                self.browse()
+                self._browse()
 
-    def add_new(self):
+    def _add_new(self):
         while(True):
             title = input('Title of the item: ')
+            recom_type = self._input_type()
             while(True):
                 check = input(
-                    f'Add "{title}" to collection? 1: Yes, 2: No, reinput title, 0: Quit ')
+                    f'Is "{title}", a {recom_type}, correct? 1: Yes, 2: No, reinput information, 0: Quit ')
                 if check == '1':
-                    self.service.create_new_recommendation(title)
+                    self.service.create_new_recommendation(title, recom_type)
                     print(f'"{title}" was added!')
                     return True
                 if check == '2':
@@ -31,8 +32,25 @@ class CLI:
                 if check == '0':
                     return False
 
-    def browse(self):
+    def _input_type(self):
+        type_input = None
+        while True:
+            type_input = input(
+                'Choose the type of the item. 1: book, 2: video, 3: blog, 4: podcast ')
+            if type_input == '1':
+                return 'book'
+            if type_input == '2':
+                return 'video'
+            if type_input == '3':
+                return 'blog'
+            if type_input == '4':
+                return 'podcast'
+
+    def _browse(self):
         all_items = self.service.get_recommendations()
-        print('You have saved the following recommendations:')
-        for title in all_items:
-            print(title)
+        if not all_items or len(all_items) < 1:
+            print('You have no recommendations saved.')
+        else:
+            print('You have saved the following recommendations:')
+            for title in all_items:
+                print(title)
