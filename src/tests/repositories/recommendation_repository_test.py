@@ -12,14 +12,14 @@ class TestRecommendationRepository(unittest.TestCase):
 
         cls.repository.empty_tables()
 
-        cls.recommendation_lotr = Recommendation("LOTR")
-        cls.recommendation_hp = Recommendation("Harry Potter")
-        cls.recommendation_ds = Recommendation("Data Structures and Algorithms")
+        cls.recommendation_lotr = Recommendation("LOTR", "book")
+        cls.recommendation_hp = Recommendation("Harry Potter", "video")
+        cls.recommendation_ds = Recommendation("Data Structures and Algorithms", "blog")
 
     def test_a_insert_recommendation(self):
-        case_a = self.repository.insert_recommendation(self.recommendation_lotr.get_title())
-        case_b = self.repository.insert_recommendation(self.recommendation_hp.get_title())
-        case_c = self.repository.insert_recommendation(self.recommendation_ds.get_title())
+        case_a = self.repository.insert_recommendation(self.recommendation_lotr.title, self.recommendation_lotr.type)
+        case_b = self.repository.insert_recommendation(self.recommendation_hp.title, self.recommendation_hp.type)
+        case_c = self.repository.insert_recommendation(self.recommendation_ds.title, self.recommendation_ds.type)
 
         self.assertIsNone(case_a)
         self.assertIsNone(case_b)
@@ -30,13 +30,13 @@ class TestRecommendationRepository(unittest.TestCase):
 
         self.assertEqual(len(results), 3)
         self.assertIsInstance(results[0], Recommendation)
-        self.assertEqual(results[0].get_title(), "LOTR")
-        self.assertEqual(results[-1].get_title(), "Data Structures and Algorithms")
+        self.assertEqual(results[0].title, "LOTR")
+        self.assertEqual(results[-1].title, "Data Structures and Algorithms")
 
     def test_c_find_recommendation_by_title(self):
         result = self.repository.find_recommendation_by_title("Harry Potter")
 
-        self.assertEqual(result.get_title(), self.recommendation_hp.get_title())
+        self.assertEqual(result.title, self.recommendation_hp.title)
         self.assertIsInstance(result, Recommendation)
         self.assertEqual(len(self.repository.find_recommendation_by_title("AIs")), 0)
         self.assertIsInstance(self.repository.find_recommendation_by_title("AIs"), list)
@@ -54,7 +54,7 @@ class TestRecommendationRepository(unittest.TestCase):
 
         results = self.repository.find_all_recommendations()
         result = self.repository.find_recommendation_by_title("Harry Potter")
-        insert_return = self.repository.insert_recommendation("Pippa Possun retket")
+        insert_return = self.repository.insert_recommendation("Pippa Possun retket", "video")
         empty_tables_return = self.repository.empty_tables()
 
         self.assertIsInstance(result, sqlite3.OperationalError)
