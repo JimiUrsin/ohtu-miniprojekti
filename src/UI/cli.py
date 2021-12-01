@@ -22,7 +22,7 @@ class CLI:
             recom_type = self._input_type()
             while(True):
                 check = input(
-                    f'Is "{title}", a {recom_type}, correct? 1: Yes, 2: No, reinput information, 0: Quit ')
+                    f'Is "{title}", {recom_type}, correct? 1: Yes, 2: No, reinput information, 0: Quit ')
                 if check == '1':
                     self.service.create_new_recommendation(title, recom_type)
                     print(f'"{title}" was added!')

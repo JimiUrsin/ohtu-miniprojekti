@@ -11,9 +11,9 @@ class TestCLI(unittest.TestCase):
 
     @patch('builtins.input', side_effect=['1', 'Book Name', '1', '1', '0'])
     @patch('builtins.print')
-    def test_title_read_correctly(self, mock_input, mock_print):
+    def test_title_read_correctly(self, mock_print, mock_input):
         self.UI.start()
-        mock_print.assert_has_calls(
+        mock_input.assert_has_calls(
             [call('Is "Book Name", a book, correct? 1: Yes, 2: No, reinput information, 0: Quit ')])
 
     @patch('builtins.input', side_effect=['1', 'Book Name', '1', '1', '0'])
@@ -27,10 +27,10 @@ class TestCLI(unittest.TestCase):
         self.mock_service.get_recommendations.return_value = []
         self.UI.start()
         self.mock_service.get_recommendations.assert_called()
-"""
+
     @patch('builtins.input', side_effect=['2', '0'])
     @patch('builtins.print')
-    def test_correct_print_when_no_recommendations(self, mock_input, mock_print):
+    def test_correct_print_when_no_recommendations(self, mock_print, mock_input):
         self.mock_service.get_recommendations.return_value = []
         self.UI.start()
         mock_print.assert_has_calls(
@@ -38,8 +38,8 @@ class TestCLI(unittest.TestCase):
 
     @patch('builtins.input', side_effect=['2', '0'])
     @patch('builtins.print')
-    def test_recommendations_printed_correctly(self, mock_input, mock_print):
+    def test_recommendations_printed_correctly(self, mock_print, mock_input):
         self.mock_service.get_recommendations.return_value = ['ABC', '123']
         self.UI.start()
         mock_print.assert_has_calls(
-            [call('ABC'), call('123')]) """
+            [call('ABC'), call('123')])
