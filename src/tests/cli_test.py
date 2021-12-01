@@ -13,8 +13,7 @@ class TestCLI(unittest.TestCase):
     def test_title_read_correctly(self):
         self.mock_io.read.side_effect=["1", "Book Name", "1", "1", "0"]
         self.UI.start()
-        self.mock_io.write.called_with(
-            [call('Is "Book Name", a book, correct? 1: Yes, 2: No, reinput information, 0: Quit ')])
+        self.mock_io.read.assert_any_call('Is "Book Name", a book, correct? 1: Yes, 2: No, reinput information, 0: Quit ')
 
     def test_adding_method_called_with_right_parameters(self):
         self.mock_io.read.side_effect=["1", "Book Name", "1", "1", "0"]
