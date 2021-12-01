@@ -1,2 +1,7 @@
 __pycache__
 .DS_Store
+
+# Robot Framework files
+log.html
+output.xml
+report.html
