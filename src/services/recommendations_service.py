@@ -16,7 +16,7 @@ class RecommendationService:
         self.validate(title, recom_type)
 
         recommendation = self._recommendation_repository.insert_recommendation(
-            Recommendation.title, Recommendation.type)
+            title, recom_type)
 
         return recommendation      
 
