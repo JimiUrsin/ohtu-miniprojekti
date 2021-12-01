@@ -2,6 +2,7 @@ name: CI
 
 on:
   push:
+  pull_request:
     branches:
       - main
       - development
@@ -27,4 +28,4 @@ jobs:
         run: poetry run pytest src/tests
       - name: Run robot tests
         if: always()
-        run: poetry run robot --runemptysuite src/tests
+        run: poetry run robot src/tests
