@@ -1,6 +1,8 @@
 # Recommendation library
 ##### OhTu mini project 2021, Ryhmä 1
 
+![GitHub Actions](https://github.com/JimiUrsin/ohtu-miniprojekti/workflows/CI/badge.svg) 
+
 With a recommendation library an user could save a different types of recommendations about books, videos, blogs, podcasts etc. 
 
 ### Backlog
