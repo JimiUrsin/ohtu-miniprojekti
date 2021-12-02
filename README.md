@@ -1,4 +1,6 @@
 # Recommendation library
+##### OhTu mini project 2021, Ryhmä 1
+
 With a recommendation library an user could save a different types of recommendations about books, videos, blogs, podcasts etc. 
 
 ### Backlog
@@ -38,7 +40,3 @@ When adding a recommendation, first type the name of recommendation. Then choose
 When browsing a recommendations, choosing "Browse recommendations" prints all the recommendations saved in the application. 
 
 When willing to quit, choosing "Quit" shuts down the application.
-
-
-
-##### OhTu miniprojekti 2021, Ryhmä 1
