@@ -15,7 +15,7 @@ class Book(Recommendation):
     def __init__(self, title, author):
         """Constructor that creates a new book recommendation"""
 
-        super().__init__(title, "Book")
+        super().__init__(title, "book")
         self.author = author
 
     def __str__(self):

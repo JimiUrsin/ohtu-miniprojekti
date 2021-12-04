@@ -13,7 +13,7 @@ class Blog(Recommendation):
     def __init__(self, title, author, url):
         """Constructor that creates a new blog recommendation"""
 
-        super().__init__(title, "Blog")
+        super().__init__(title, "blog")
         self.author = author
         self.url = url
 

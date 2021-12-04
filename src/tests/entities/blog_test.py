@@ -14,4 +14,4 @@ class TestBlog(unittest.TestCase):
         self.assertEqual(self.blog.url, self.url)
 
     def test_string_representation(self):
-        self.assertEqual(str(self.blog), "The Keyword (Blog), Author: Google, URL: https://blog.google/")
+        self.assertEqual(str(self.blog), "The Keyword (blog), Author: Google, URL: https://blog.google/")

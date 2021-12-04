@@ -14,4 +14,4 @@ class TestBook(unittest.TestCase):
         self.assertEqual(self.podcast.url, self.url)
 
     def test_string_representation(self):
-        self.assertEqual(str(self.podcast), "Aamulypsy (Podcast), Author: Radio Suomipop, URL: https://www.supla.fi/ohjelmat/aamulypsy")
+        self.assertEqual(str(self.podcast), "Aamulypsy (podcast), Author: Radio Suomipop, URL: https://www.supla.fi/ohjelmat/aamulypsy")

@@ -13,7 +13,7 @@ class Podcast(Recommendation):
     def __init__(self, title, author, url):
         """Constructor that creates a new podcast recommendation"""
 
-        super().__init__(title, "Podcast")
+        super().__init__(title, "podcast")
         self.author = author
         self.url = url
 
