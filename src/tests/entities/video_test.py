@@ -14,4 +14,4 @@ class TestVideo(unittest.TestCase):
         self.assertEqual(self.music_video.url, self.url)
 
     def test_string_representation(self):
-        self.assertEqual(str(self.music_video), "Not Ever in The Mindset of Handing You Away (Video), Author: Richard Paul A., URL: https://www.youtube.com/watch?v=dQw4w9WgXcQ")
+        self.assertEqual(str(self.music_video), "Not Ever in The Mindset of Handing You Away (video), Author: Richard Paul A., URL: https://www.youtube.com/watch?v=dQw4w9WgXcQ")

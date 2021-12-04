@@ -10,4 +10,4 @@ class TestBook(unittest.TestCase):
         self.assertEqual(self.harry_potter.author, self.author)
 
     def test_string_representation(self):
-        self.assertEqual(str(self.harry_potter), "Harry Potter and The Chamber of Secrets (Book), Author: J.K. Rowling")
+        self.assertEqual(str(self.harry_potter), "Harry Potter and The Chamber of Secrets (book), Author: J.K. Rowling")

@@ -13,7 +13,7 @@ class Video(Recommendation):
     def __init__(self, title, author, url):
         """Constructor that creates a new video recommendation"""
 
-        super().__init__(title, "Video")
+        super().__init__(title, "video")
         self.author = author
         self.url = url
 
