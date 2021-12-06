@@ -13,7 +13,7 @@ class TestCLI(unittest.TestCase):
     def test_title_read_correctly(self):
         self.mock_io.read.side_effect=["1", "Book Name", "1", "1", "0"]
         self.UI.start()
-        self.mock_io.read.assert_any_call('Is "Book Name", book, correct? 1: Yes, 2: No, reinput information, 0: Quit ')
+        self.mock_io.read.assert_any_call('Is "Book Name", book, correct? 1: Yes, 2: No, reinput information ')
 
     def test_adding_method_called_with_right_parameters(self):
         self.mock_io.read.side_effect=["1", "Book Name", "1", "1", "0"]
@@ -39,3 +39,17 @@ class TestCLI(unittest.TestCase):
         self.UI.start()
         self.mock_io.write.assert_has_calls(
             [call('ABC'), call('123')])
+
+    def test_correct_print_in_edit_mode_no_recommendations(self):
+        self.mock_io.read.side_effect=["3", "0", "0"]
+        self.mock_service.get_recommendations.return_value = []
+        self.UI.start()
+        self.mock_io.write.assert_has_calls(
+            [call('You have no recommendations saved.')])
+
+    def test_recommendations_printed_correctly_in_edit_mode(self):
+        self.mock_io.read.side_effect=["3", "0", "0"]
+        self.mock_service.get_recommendations.return_value = ['ABC', '123']
+        self.UI.start()
+        self.mock_io.write.assert_has_calls(
+            [call('1: ABC'), call('2: 123')])

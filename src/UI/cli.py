@@ -6,32 +6,42 @@ class CLI:
 
     def start(self):
         self.io.write('Welcome! Choose an action: ')
-        continue_loop = True
-        while(continue_loop):
+        while(True):
             action = self.io.read(
-                '1: Add a recommendation, 2: Browse recommendations, 0: Quit ')
+                '1: Add a recommendation, 2: Browse recommendations, 3: Edit or delete recommendations, 0: Quit ')
             if action == '0':
                 break
             if action == '1':
-                continue_loop = self._add_new()
+                self._add_new()
             if action == '2':
                 self._browse()
+            if action == '3':
+                self._edit_or_delete_recommendation()
+
 
     def _add_new(self):
+        input_for_recommendation = self._ask_for_recommendation_inputs()
+        self.service.create_new_recommendation(input_for_recommendation[0], input_for_recommendation[1])
+        self.io.write(f'"{input_for_recommendation[0]}" was added!')
+
+    def _ask_for_recommendation_inputs(self):
+        """Prompts user to input the title and type of a recommendations. Returns a tuple with given title and recommendation type"""
+        
         while(True):
             title = self.io.read('Title of the item: ')
             recom_type = self._input_type()
-            while(True):
-                check = self.io.read(
-                    f'Is "{title}", {recom_type}, correct? 1: Yes, 2: No, reinput information, 0: Quit ')
-                if check == '1':
-                    self.service.create_new_recommendation(title, recom_type)
-                    self.io.write(f'"{title}" was added!')
-                    return True
-                if check == '2':
-                    break
-                if check == '0':
-                    return False
+
+            check =  self._confirm_user_input(title, recom_type)
+            
+            if check:
+                return (title, recom_type)
+
+
+    def _confirm_user_input(self, title, recom_type):
+        check = self.io.read(
+            f'Is "{title}", {recom_type}, correct? 1: Yes, 2: No, reinput information ')
+        return True if check == '1' else False
+
 
     def _input_type(self):
         type_input = None
@@ -53,5 +63,46 @@ class CLI:
             self.io.write('You have no recommendations saved.')
         else:
             self.io.write('You have saved the following recommendations:')
-            for title in all_items:
-                self.io.write(title)
+            self._print_recommendations(all_items)
+
+    def _edit_or_delete_recommendation(self):
+        recommendation_chosen_for_editing = self._ask_which_recommendation_to_edit()
+        if recommendation_chosen_for_editing:
+            self._ask_edit_or_delete_recommendation(recommendation_chosen_for_editing)
+
+    def _ask_which_recommendation_to_edit(self):
+        all_items = self.service.get_recommendations()
+
+        if not all_items or len(all_items) < 1:
+            self.io.write("You have no recommendations saved.")
+            return
+
+        self._print_recommendations(all_items, True)
+        recommendation_index = self.io.read("Ented the number of the recommendation you would like to edit, or cancel with 0: ")
+        recommendation_index_int = int(recommendation_index) - 1 # Shift the index one down since we are leaving 0 input for cancel
+
+        return all_items[recommendation_index_int] if recommendation_index_int - 1 < len(all_items) and recommendation_index_int >= 0 else None
+
+    def _ask_edit_or_delete_recommendation(self, recommendation):
+        while True:
+            self.io.write(recommendation.title)
+            action = self.io.read("1: Edit this recommendation, 2: Delete this recommendation, 0: Cancel ")
+
+            if action == '0':
+                break
+
+            if action == '1':
+                input_for_recommendation = self._ask_for_recommendation_inputs()
+                # Call service edit function here
+                break
+
+            if action == '2':
+                confirmation = self.io.read("Confirm deletition. 1: Delete, 0: Cancel ")
+                if confirmation == '1':
+                    # Call service deletition function here
+                    break
+
+    def _print_recommendations(self, recommendations, display_index = False):
+        for index, title in enumerate(recommendations):
+            recommendation_string = f"{(index + 1)}: {title}" if display_index else title
+            self.io.write(recommendation_string)
