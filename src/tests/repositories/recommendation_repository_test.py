@@ -41,15 +41,25 @@ class TestRecommendationRepository(unittest.TestCase):
         self.assertEqual(len(self.repository.find_recommendation_by_title("AIs")), 0)
         self.assertIsInstance(self.repository.find_recommendation_by_title("AIs"), list)
 
-    def test_d_empty_tables(self):
-        self.assertEqual(len(self.repository.find_all_recommendations()), 3)
+    def test_d_delete_single_recommendation_find_by_title(self):
+        results = self.repository.find_all_recommendations()
+        self.assertEqual(len(results), 3)
+        self.repository.delete_recommendation_by_title("Harry Potter")
+        results = self.repository.find_all_recommendations()
+        self.assertEqual(len(results), 2)
+
+    def test_edit_single_recommendation(self):
+        pass
+
+    def test_e_empty_tables(self):
+        self.assertEqual(len(self.repository.find_all_recommendations()), 2)
 
         return_value = self.repository.empty_tables()
 
         self.assertIsNone(return_value)
         self.assertEqual(len(self.repository.find_all_recommendations()), 0)
 
-    def test_e_empty_database(self):
+    def test_f_empty_database(self):
         self.repository._run_db_command("DROP TABLE Recommendations")
 
         results = self.repository.find_all_recommendations()
