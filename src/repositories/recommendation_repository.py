@@ -58,7 +58,7 @@ class RecommendationRepository:
         return result
 
     def insert_recommendation(self, title, recom_type):
-        """Inserts a recommendation to database with title
+        """Inserts a recommendation to database with title and recommendation type
 
         Args:
             title: A title of recommendation
@@ -70,6 +70,20 @@ class RecommendationRepository:
         query = "INSERT INTO Recommendations (title, type) VALUES (?,?)"
 
         return self._write_db(query, [title, recom_type])
+
+    def delete_recommendation_by_title(self, title):
+        """Delete a recommendation by title from database
+        
+        Args:
+            title: A tilte of recommendation
+
+        Return:
+            None if success, sqlite3.OperationalError object if db error 
+        """
+
+        query = "DELETE FROM Recommendations WHERE title = ?"
+
+        return self._write_db(query, [title])
 
     def empty_tables(self):
         """Empties whole Recommendations table from database"""
