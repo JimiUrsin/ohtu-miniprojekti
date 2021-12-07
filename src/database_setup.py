@@ -1,13 +1,13 @@
 from database_connection import get_database_connection, get_test_database_connection
+import os
+
+dirname = os.path.dirname(__file__)
 
 class DataBase:
     def create_tables(self, connection):
         cursor = connection.cursor()
-        cursor.execute("""CREATE TABLE Recommendations
-                        (id INTEGER PRIMARY KEY,
-                        title TEXT,
-                        type TEXT
-                        );""")
+        with open(os.path.join(dirname, "..", "data", "schema.sql")) as schema:
+            cursor.executescript(schema.read())
         return True
 
     def drop_tables(self,connection):

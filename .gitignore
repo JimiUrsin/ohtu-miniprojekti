@@ -1,7 +1,6 @@
 __pycache__
 .DS_Store
-data/database.sqlite
-data/test_database.sqlite
+*sqlite
 data/database.db
 
 # Robot Framework files
