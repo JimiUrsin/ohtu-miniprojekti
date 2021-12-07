@@ -1,4 +1,5 @@
 import unittest, sqlite3
+
 from database_setup import DataBase
 from entities.recommendation import Recommendation
 from database_connection import get_test_database_connection
@@ -12,18 +13,15 @@ class TestRecommendationRepository(unittest.TestCase):
 
         cls.repository.empty_tables()
 
-        cls.recommendation_lotr = Recommendation("LOTR", "book")
-        cls.recommendation_hp = Recommendation("Harry Potter", "video")
-        cls.recommendation_ds = Recommendation("Data Structures and Algorithms", "blog")
+        cls.recom_lotr = Recommendation("LOTR", "book", 1)
+        cls.recom_hp = Recommendation("Harry Potter", "video", 2)
+        cls.recom_ds = Recommendation("Data Structures and Algorithms", "blog", 3)
+
+        cls.recommendations = [cls.recom_lotr, cls.recom_hp, cls.recom_ds]
 
     def test_a_insert_recommendation(self):
-        case_a = self.repository.insert_recommendation(self.recommendation_lotr.title, self.recommendation_lotr.type)
-        case_b = self.repository.insert_recommendation(self.recommendation_hp.title, self.recommendation_hp.type)
-        case_c = self.repository.insert_recommendation(self.recommendation_ds.title, self.recommendation_ds.type)
-
-        self.assertIsNone(case_a)
-        self.assertIsNone(case_b)
-        self.assertIsNone(case_c)
+        for recom in self.recommendations:
+            self.assertIsNone(self.repository.insert_recommendation(recom.title, recom.type))
 
     def test_b_find_all_recommendations(self):        
         results = self.repository.find_all_recommendations()
@@ -32,12 +30,14 @@ class TestRecommendationRepository(unittest.TestCase):
         self.assertIsInstance(results[0], Recommendation)
         self.assertEqual(results[0].title, "LOTR")
         self.assertEqual(results[-1].title, "Data Structures and Algorithms")
+        self.assertEqual(results[-1].db_id, self.recommendations[-1].db_id)
 
     def test_c_find_recommendation_by_title(self):
         result = self.repository.find_recommendation_by_title("Harry Potter")
 
-        self.assertEqual(result.title, self.recommendation_hp.title)
+        self.assertEqual(result.title, self.recommendations[1].title)
         self.assertIsInstance(result, Recommendation)
+        self.assertEqual(result.db_id, self.recommendations[1].db_id)
         self.assertEqual(len(self.repository.find_recommendation_by_title("AIs")), 0)
         self.assertIsInstance(self.repository.find_recommendation_by_title("AIs"), list)
 

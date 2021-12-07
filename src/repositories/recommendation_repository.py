@@ -28,7 +28,7 @@ class RecommendationRepository:
         results = self._read_db(query)
 
         if isinstance(results, list):
-            recommendations = [Recommendation(result['title'], result['type']) for result in results]
+            recommendations = [Recommendation(result['title'], result['type'], result['id']) for result in results]
         else:
             recommendations = results
 
@@ -50,7 +50,7 @@ class RecommendationRepository:
         results = self._read_db(query, [title])
 
         if isinstance(results, list) and len(results) > 0:
-            result = Recommendation(results[0]['title'], results[0]['type'])
+            result = Recommendation(results[0]['title'], results[0]['type'], results[0]['id'])
             print(result)
         else:
             result = results
