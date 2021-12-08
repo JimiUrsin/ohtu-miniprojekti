@@ -10,10 +10,10 @@ class Podcast(Recommendation):
         url: A string value that describes the web address of the podcast.
     """
 
-    def __init__(self, title, author, url):
+    def __init__(self, title, author, url, db_id):
         """Constructor that creates a new podcast recommendation"""
 
-        super().__init__(title, "podcast")
+        super().__init__(title, "podcast", db_id)
         self.author = author
         self.url = url
 

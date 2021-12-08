@@ -5,7 +5,7 @@ class TestVideo(unittest.TestCase):
     def setUp(self):
         self.author = "Richard Paul A."
         self.url = "https://www.youtube.com/watch?v=dQw4w9WgXcQ"
-        self.music_video = Video("Not Ever in The Mindset of Handing You Away", self.author, self.url)
+        self.music_video = Video("Not Ever in The Mindset of Handing You Away", self.author, self.url, 0)
 
     def test_video_author_is_correct(self):
         self.assertEqual(self.music_video.author, self.author)

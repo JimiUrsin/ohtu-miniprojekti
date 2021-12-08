@@ -10,10 +10,10 @@ class Blog(Recommendation):
         url: A string value that describes the web address of the blog
     """
 
-    def __init__(self, title, author, url):
+    def __init__(self, title, author, url, db_id):
         """Constructor that creates a new blog recommendation"""
 
-        super().__init__(title, "blog")
+        super().__init__(title, "blog", db_id)
         self.author = author
         self.url = url
 
