@@ -1,4 +1,4 @@
-from database_connection import get_database_connection, get_test_database_connection
+from database_connection import get_database_connection
 from entities.recommendation import Recommendation
 
 class RecommendationRepository:
@@ -73,12 +73,12 @@ class RecommendationRepository:
 
     def delete_recommendation_by_id(self, id):
         """Delete a recommendation by title from database
-        
+
         Args:
-            title: A tilte of recommendation
+            id: An id of the recommendation
 
         Return:
-            None if success, sqlite3.OperationalError object if db error 
+            None if success, sqlite3.OperationalError object if db error
         """
 
         query = "DELETE FROM Recommendations WHERE id = ?"
@@ -86,15 +86,30 @@ class RecommendationRepository:
         return self._write_db(query, [id])
 
     def edit_recommendation_title(self, new_value, id):
-        """Edit recommendation title in database"""
+        """Edit recommendation title in database
+
+        Args:
+            new_value: new title from the user
+            id: An id of the recommendation
+
+        Return:
+            None if success, sqlite3.OperationalError object if db error
+        """
 
         query = "UPDATE Recommendations SET title = ? WHERE id = ?"
 
         return self._write_db(query, [new_value, id])
 
     def edit_recommendation_type(self, new_value, id):
-        """Edit recommendation type in database"""
+        """Edit recommendation type in database
 
+        Args:
+            new_value: new title from the user
+            id: An id of the recommendation
+
+        Return:
+            None if success, sqlite3.OperationalError object if db error
+        """
         query = "UPDATE Recommendations SET type = ? WHERE id = ?"
 
         return self._write_db(query, [new_value, id])
@@ -169,10 +184,9 @@ class RecommendationRepository:
 
                 self.connection.execute(command)
                 self.connection.commit()
-            
+
             return None
-        
+
         except self.connection.Error as error:
             return error
 
-recommendation_repository = RecommendationRepository(get_database_connection)
