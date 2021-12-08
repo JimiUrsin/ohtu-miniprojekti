@@ -57,29 +57,6 @@ class RecommendationRepository:
 
         return result
 
-    def find_recommendation_by_type(self, type):
-        """Fetches a single recommendation from database by type
-
-        Args:
-            type: The type of recommendation
-
-        Returns:
-            If results:     a Recommendation object
-            If not:         an empty list
-            If db error:    sqlite3.OperationalError object
-        """
-
-        query = "SELECT * FROM Recommendations WHERE title = ?"
-        results = self._read_db(query, [type])
-
-        if isinstance(results, list) and len(results) > 0:
-            result = Recommendation(results[0]['title'], results[0]['type'], results[0]['id'])
-            print(result)
-        else:
-            result = results
-
-        return result
-
     def insert_recommendation(self, title, recom_type):
         """Inserts a recommendation to database with title and recommendation type
 
@@ -94,7 +71,7 @@ class RecommendationRepository:
 
         return self._write_db(query, [title, recom_type])
 
-    def delete_recommendation_by_title(self, title):
+    def delete_recommendation_by_id(self, id):
         """Delete a recommendation by title from database
         
         Args:
@@ -104,21 +81,21 @@ class RecommendationRepository:
             None if success, sqlite3.OperationalError object if db error 
         """
 
-        query = "DELETE FROM Recommendations WHERE title = ?"
+        query = "DELETE FROM Recommendations WHERE id = ?"
 
-        return self._write_db(query, [title])
+        return self._write_db(query, [id])
 
-    def edit_recommendation_by_title(self, new_value, id):
+    def edit_recommendation_title(self, new_value, id):
         """Edit recommendation title in database"""
 
-        query = "UPDATE table Recommendations SET title = ? WHERE Recommendations.id = ?"
+        query = "UPDATE table Recommendations SET title = ? WHERE id = ?"
 
         return self._write_db(query, [new_value, id])
 
-    def edit_recommendation_by_type(self, new_value, id):
+    def edit_recommendation_type(self, new_value, id):
         """Edit recommendation type in database"""
 
-        query = "UPDATE table Recommendations SET type = ? WHERE Recommendations.id = ?"
+        query = "UPDATE table Recommendations SET type = ? WHERE id = ?"
 
         return self._write_db(query, [new_value, id])
 

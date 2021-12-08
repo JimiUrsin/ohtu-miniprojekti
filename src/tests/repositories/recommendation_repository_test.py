@@ -41,22 +41,25 @@ class TestRecommendationRepository(unittest.TestCase):
         self.assertEqual(len(self.repository.find_recommendation_by_title("AIs")), 0)
         self.assertIsInstance(self.repository.find_recommendation_by_title("AIs"), list)
 
-    def test_d_delete_single_recommendation_find_by_title(self):
+    def test_d_delete_single_recommendation_find_by_id(self):
         results = self.repository.find_all_recommendations()
         self.assertEqual(len(results), 3)
-        self.repository.delete_recommendation_by_title("Harry Potter")
+        self.repository.delete_recommendation_by_id(2)
         results = self.repository.find_all_recommendations()
         self.assertEqual(len(results), 2)
 
-    def test_e_edit_single_recommendation_by_title(self):
-        self.repository.edit_recommendation_by_title('LOTR_version2', 1)
-        self.assertEqual(len(self.repository.find_recommendation_by_title("LOTR")), 0)
-        self.assertEqual(len(self.repository.find_recommendation_by_title("LOTR_verion2")), 1)
+    def test_e_edit_single_recommendation_title(self):
+        self.repository.edit_recommendation_title('LOTR_version2', 0)
+        results = self.repository.find_all_recommendations()
+        self.assertEqual(results[0].title, "LOTR_version2")
 
-    def test_f_edit_single_recommendation_by_type(self):
-        self.assertEqual(len(self.repository.find_recommendation_by_type("video")), 0)
-        self.repository.edit_recommendation_by_type('video', 1)
-        self.assertEqual(len(self.repository.find_recommendation_by_type("video")), 1)
+    def test_f_edit_single_recommendation_type(self):
+        self.repository.edit_recommendation_type('video', 0)
+        results = self.repository.find_all_recommendations()
+        print(results[0])
+        print(results[0].title)
+        self.assertEqual(results[0].type, "video")
+
 
     def test_g_empty_tables(self):
         self.assertEqual(len(self.repository.find_all_recommendations()), 2)
