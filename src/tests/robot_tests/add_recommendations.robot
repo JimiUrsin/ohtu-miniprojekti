@@ -9,7 +9,6 @@ Add A Recommendation To The Database
     Confirm Input
     Exit From Menu
     Run Application
-    Input Confirmation Check Asks For  Book Name  book
     Output Should Contain  "Book Name" was added!
 
 Browsing Recommendations Where Some Have Been Created

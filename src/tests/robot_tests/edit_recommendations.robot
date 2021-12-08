@@ -28,7 +28,7 @@ Deleted Recommendation Is Not Shown Anymore
     Output Should Contain  You have no recommendations saved.
     Output Should Not Contain  Fifty Shades of Grey (video)
 
-Recommendation Can Be Edited
+Recommendation Can Be Edited And Old Information Is Not Shown
     Insert A New Recommendation  Pyöreäpöytä  podcast
     Navigate To Edit Mode From Menu
     Input  1
