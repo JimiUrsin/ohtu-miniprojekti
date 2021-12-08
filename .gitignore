@@ -1,7 +1,7 @@
 __pycache__
 .DS_Store
-*sqlite
-data/database.db
+.pytest_cache
+*.sqlite
 
 # Robot Framework files
 log.html
