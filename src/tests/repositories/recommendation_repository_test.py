@@ -48,10 +48,17 @@ class TestRecommendationRepository(unittest.TestCase):
         results = self.repository.find_all_recommendations()
         self.assertEqual(len(results), 2)
 
-    def test_edit_single_recommendation(self):
-        pass
+    def test_e_edit_single_recommendation_by_title(self):
+        self.repository.edit_recommendation_by_title('LOTR_version2', 1)
+        self.assertEqual(len(self.repository.find_recommendation_by_title("LOTR")), 0)
+        self.assertEqual(len(self.repository.find_recommendation_by_title("LOTR_verion2")), 1)
 
-    def test_e_empty_tables(self):
+    def test_f_edit_single_recommendation_by_type(self):
+        self.assertEqual(len(self.repository.find_recommendation_by_type("video")), 0)
+        self.repository.edit_recommendation_by_type('video', 1)
+        self.assertEqual(len(self.repository.find_recommendation_by_type("video")), 1)
+
+    def test_g_empty_tables(self):
         self.assertEqual(len(self.repository.find_all_recommendations()), 2)
 
         return_value = self.repository.empty_tables()
@@ -59,7 +66,7 @@ class TestRecommendationRepository(unittest.TestCase):
         self.assertIsNone(return_value)
         self.assertEqual(len(self.repository.find_all_recommendations()), 0)
 
-    def test_f_empty_database(self):
+    def test_h_empty_database(self):
         self.repository._run_db_command("DROP TABLE Recommendations")
 
         results = self.repository.find_all_recommendations()
