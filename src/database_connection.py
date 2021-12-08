@@ -1,4 +1,4 @@
-import os 
+import os
 import sqlite3
 
 dirname = os.path.dirname(__file__)

@@ -6,7 +6,7 @@ dirname = os.path.dirname(__file__)
 class DataBase:
     def create_tables(self, connection):
         cursor = connection.cursor()
-        with open(os.path.join(dirname, "..", "data", "schema.sql")) as schema:
+        with open(os.path.join(dirname, "..", "schema.sql")) as schema:
             cursor.executescript(schema.read())
         return True
 
