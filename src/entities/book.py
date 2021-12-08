@@ -12,10 +12,10 @@ class Book(Recommendation):
         author: A string value that describes the author of the book.
     """
 
-    def __init__(self, title, author):
+    def __init__(self, title, author, db_id):
         """Constructor that creates a new book recommendation"""
 
-        super().__init__(title, "book")
+        super().__init__(title, "book", db_id)
         self.author = author
 
     def __str__(self):

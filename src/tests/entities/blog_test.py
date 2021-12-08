@@ -5,7 +5,7 @@ class TestBlog(unittest.TestCase):
     def setUp(self):
         self.author = "Google"
         self.url = "https://blog.google/"
-        self.blog = Blog("The Keyword", self.author, self.url)
+        self.blog = Blog("The Keyword", self.author, self.url, 0)
 
     def test_blog_author_is_correct(self):
         self.assertEqual(self.blog.author, self.author)
