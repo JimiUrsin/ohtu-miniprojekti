@@ -1,7 +1,8 @@
 __pycache__
 .DS_Store
-*sqlite
+*.sqlite
 data/database.db
+.coverage
 
 # Robot Framework files
 log.html
