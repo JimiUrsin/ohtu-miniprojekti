@@ -29,3 +29,7 @@ jobs:
       - name: Run robot tests
         if: always()
         run: poetry run robot src/tests
+      - name: Coverage report
+        run: poetry run coverage xml
+      - name: Coverage report to Codecov
+        run: bash <(curl -s https://codecov.io/bash)
