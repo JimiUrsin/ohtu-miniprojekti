@@ -10,10 +10,10 @@ class Video(Recommendation):
         url: A string value that describes the web address of the video.
     """
 
-    def __init__(self, title, author, url):
+    def __init__(self, title, author, url, db_id):
         """Constructor that creates a new video recommendation"""
 
-        super().__init__(title, "video")
+        super().__init__(title, "video", db_id)
         self.author = author
         self.url = url
 
