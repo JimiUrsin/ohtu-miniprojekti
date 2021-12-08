@@ -68,7 +68,7 @@ class CLI:
     def _edit_or_delete_recommendation(self):
         recommendation_chosen_for_editing = self._ask_which_recommendation_to_edit()
         if recommendation_chosen_for_editing:
-            self._ask_edit_or_delete_recommendation(recommendation_chosen_for_editing)
+            self._ask_edit_or_delete_recommendation(recommendation_chosen_for_editing[0], recommendation_chosen_for_editing[1])
 
     def _ask_which_recommendation_to_edit(self):
         all_items = self.service.get_recommendations()
@@ -81,9 +81,9 @@ class CLI:
         recommendation_index = self.io.read("Ented the number of the recommendation you would like to edit, or cancel with 0: ")
         recommendation_index_int = int(recommendation_index) - 1 # Shift the index one down since we are leaving 0 input for cancel
 
-        return all_items[recommendation_index_int] if recommendation_index_int - 1 < len(all_items) and recommendation_index_int >= 0 else None
+        return (all_items[recommendation_index_int], recommendation_index_int) if recommendation_index_int - 1 < len(all_items) and recommendation_index_int >= 0 else None
 
-    def _ask_edit_or_delete_recommendation(self, recommendation):
+    def _ask_edit_or_delete_recommendation(self, recommendation, recommendation_index):
         while True:
             self.io.write(recommendation.title)
             action = self.io.read("1: Edit this recommendation, 2: Delete this recommendation, 0: Cancel ")
@@ -93,13 +93,18 @@ class CLI:
 
             if action == '1':
                 input_for_recommendation = self._ask_for_recommendation_inputs()
-                # Call service edit function here
+                success_edit_title = self.service.edit_recommendation_title(input_for_recommendation[0], recommendation_index)
+                success_edit_type = self.service.edit_recommendation_type(input_for_recommendation[1], recommendation_index)
+                if not success_edit_type or not success_edit_title:
+                    self.io.write("Editing Recommendation was not successful")
                 break
 
             if action == '2':
                 confirmation = self.io.read("Confirm deletition. 1: Delete, 0: Cancel ")
                 if confirmation == '1':
-                    # Call service deletition function here
+                    success_deletition = self.service.delete_recommendation(recommendation_index)
+                    if not success_deletition:
+                        self.io.write("Deleting Recommendation was not successful")
                     break
 
     def _print_recommendations(self, recommendations, display_index = False):

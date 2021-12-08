@@ -37,7 +37,7 @@ class RecommendationService:
         validated = self._validate_recommendation(self._recommendations[index].title, new_type)
 
         if validated:
-            value = self._recommendation_repository.edit_recommendation_title(
+            value = self._recommendation_repository.edit_recommendation_type(
                 new_type,
                 self._recommendations[index].db_id
             )
@@ -45,6 +45,13 @@ class RecommendationService:
             return True if value is None else False
 
         return False
+
+    def delete_recommendation(self, index):
+        value = self._recommendation_repository.delete_recommendation_by_id(
+            self._recommendations[index].db_id
+        )
+        
+        return True if value is None else False
 
     def _validate_recommendation(self, title, type):
         valid_types = ["book", "video", "blog", "podcast"]
