@@ -88,14 +88,14 @@ class RecommendationRepository:
     def edit_recommendation_title(self, new_value, id):
         """Edit recommendation title in database"""
 
-        query = "UPDATE table Recommendations SET title = ? WHERE id = ?"
+        query = "UPDATE Recommendations SET title = ? WHERE id = ?"
 
         return self._write_db(query, [new_value, id])
 
     def edit_recommendation_type(self, new_value, id):
         """Edit recommendation type in database"""
 
-        query = "UPDATE table Recommendations SET type = ? WHERE id = ?"
+        query = "UPDATE Recommendations SET type = ? WHERE id = ?"
 
         return self._write_db(query, [new_value, id])
 
