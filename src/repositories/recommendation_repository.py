@@ -71,7 +71,7 @@ class RecommendationRepository:
 
         return self._write_db(query, [title, recom_type])
 
-    def delete_recommendation_by_title(self, title):
+    def delete_recommendation_by_id(self, id):
         """Delete a recommendation by title from database
         
         Args:
@@ -81,9 +81,23 @@ class RecommendationRepository:
             None if success, sqlite3.OperationalError object if db error 
         """
 
-        query = "DELETE FROM Recommendations WHERE title = ?"
+        query = "DELETE FROM Recommendations WHERE id = ?"
 
-        return self._write_db(query, [title])
+        return self._write_db(query, [id])
+
+    def edit_recommendation_title(self, new_value, id):
+        """Edit recommendation title in database"""
+
+        query = "UPDATE Recommendations SET title = ? WHERE id = ?"
+
+        return self._write_db(query, [new_value, id])
+
+    def edit_recommendation_type(self, new_value, id):
+        """Edit recommendation type in database"""
+
+        query = "UPDATE Recommendations SET type = ? WHERE id = ?"
+
+        return self._write_db(query, [new_value, id])
 
     def empty_tables(self):
         """Empties whole Recommendations table from database"""
