@@ -5,10 +5,10 @@ class StubIO:
         self.outputs = []
     
     def write(self, message):
-        self.outputs.append(message.strip())
+        self.outputs.append(str(message).strip())
     
     def read(self, prompt):
-        self.outputs.append(prompt.strip())
+        self.outputs.append(str(prompt).strip())
         if len(self.inputs) > 0:
             return self.inputs.pop(0)
         else:

@@ -20,4 +20,14 @@ class RobotLibrary:
 
     def output_should_contain(self, output):
         if output not in self._io.outputs:
-            raise AssertionError(f"Specified output was not found in output list. Outputs were {self._io.outputs}")
+            raise AssertionError(f"Specified output ({output}) was not found in output list. Outputs were {self._io.outputs}")
+
+    def output_should_not_contain(self, output):
+        if output in self._io.outputs:
+            raise AssertionError(f"Specified output ({output}) was found in output list. Outputs were {self._io.outputs}")
+
+    def insert_a_new_recommendation(self, title, recom_type):
+        self._service.create_new_recommendation(title, recom_type)
+
+    def clear_database(self):
+        self._repository.empty_tables()
