@@ -1,38 +1,57 @@
-from entities.recommendation import Recommendation
-from repositories.recommendation_repository import recommendation_repository
+from repositories.recommendation_repository import RecommendationRepository as default_repo
 
 class RecommendationService:
-    """
-    A single reading / watching / listening recommendation
-    """
-
-    def __init__(self, recommendation_repository):
+    def __init__(self, recommendation_repository=default_repo()):
         self._recommendation_repository = recommendation_repository
+        self._recommendations = None
 
-    def create_new_recommendation(self, title, recom_type):
+    def create_new_recommendation(self, title, type):
+        validated = self._validate_recommendation(title, type)
 
-        """Create a new recommendation"""
+        if validated:
+            value = self._recommendation_repository.insert_recommendation(title, type)
 
-        self.validate(title, recom_type)
+            return True if value is None else False
 
-        recommendation = self._recommendation_repository.insert_recommendation(
-            title, recom_type)
-
-        return recommendation      
+        return False
 
     def get_recommendations(self):
+        self._recommendations = self._recommendation_repository.find_all_recommendations()
+
+        return self._recommendations
+
+    def edit_recommendation_title(self, new_title, index):
+        validated = self._validate_recommendation(new_title, self._recommendations[index].type)
+
+        if validated:
+            value = self._recommendation_repository.edit_recommendation_title(
+                new_title,
+                self._recommendations[index].db_id
+            )
         
-        return self._recommendation_repository.find_all_recommendations()
+            return True if value is None else False
 
-    def validate(self, title, recom_type):
-        if len(title) < 1:
-            raise Exception("Recommendation has to have a title of at least 2 characters")
+        return False
 
-        valid_recommendation = ["book", "video", "blog", "podcast"]
+    def edit_recommendation_type(self, new_type, index):
+        validated = self._validate_recommendation(self._recommendations[index].title, new_type)
 
-        if recom_type not in valid_recommendation:
-            raise Exception("Recommendation type should be book, video, blog or podcast")
+        if validated:
+            value = self._recommendation_repository.edit_recommendation_title(
+                new_type,
+                self._recommendations[index].db_id
+            )
 
-        self.__title = title
+            return True if value is None else False
 
-recommendation_repository = RecommendationService(recommendation_repository)
+        return False
+
+    def _validate_recommendation(self, title, type):
+        valid_types = ["book", "video", "blog", "podcast"]
+
+        if len(title) < 2:
+            return False
+        if type.lower() not in valid_types:
+            return False
+        
+        return True
