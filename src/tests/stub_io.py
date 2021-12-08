@@ -1,18 +1,21 @@
 
 class StubIO:
+    """Mocks the functionality of the console IO service"""
+
     def __init__(self):
         self.inputs = []
         self.outputs = []
-    
+
     def write(self, message):
         self.outputs.append(str(message).strip())
-    
+
     def read(self, prompt):
+        """Returns a fake input from the input list"""
         self.outputs.append(str(prompt).strip())
         if len(self.inputs) > 0:
             return self.inputs.pop(0)
-        else:
-            raise RuntimeError("IO stub tried to read more values than were available")
 
-    def add_input(self, input):
-        self.inputs.append(input)
+        raise RuntimeError("IO stub tried to read more values than were available")
+
+    def add_input(self, fake_user_input):
+        self.inputs.append(fake_user_input)

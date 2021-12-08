@@ -1,6 +1,3 @@
-
-from entities.recommendation import Recommendation
-
 from entities.recommendation import Recommendation
 
 class Book(Recommendation):

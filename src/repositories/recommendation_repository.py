@@ -71,11 +71,11 @@ class RecommendationRepository:
 
         return self._write_db(query, [title, recom_type])
 
-    def delete_recommendation_by_id(self, id):
+    def delete_recommendation_by_id(self, db_id):
         """Delete a recommendation by title from database
 
         Args:
-            id: An id of the recommendation
+            db_id: An id of the recommendation
 
         Return:
             None if success, sqlite3.OperationalError object if db error
@@ -83,14 +83,14 @@ class RecommendationRepository:
 
         query = "DELETE FROM Recommendations WHERE id = ?"
 
-        return self._write_db(query, [id])
+        return self._write_db(query, [db_id])
 
-    def edit_recommendation_title(self, new_value, id):
+    def edit_recommendation_title(self, new_value, db_id):
         """Edit recommendation title in database
 
         Args:
             new_value: new title from the user
-            id: An id of the recommendation
+            db_id: An id of the recommendation
 
         Return:
             None if success, sqlite3.OperationalError object if db error
@@ -98,21 +98,21 @@ class RecommendationRepository:
 
         query = "UPDATE Recommendations SET title = ? WHERE id = ?"
 
-        return self._write_db(query, [new_value, id])
+        return self._write_db(query, [new_value, db_id])
 
-    def edit_recommendation_type(self, new_value, id):
+    def edit_recommendation_type(self, new_value, db_id):
         """Edit recommendation type in database
 
         Args:
             new_value: new title from the user
-            id: An id of the recommendation
+            db_id: An id of the recommendation
 
         Return:
             None if success, sqlite3.OperationalError object if db error
         """
         query = "UPDATE Recommendations SET type = ? WHERE id = ?"
 
-        return self._write_db(query, [new_value, id])
+        return self._write_db(query, [new_value, db_id])
 
     def empty_tables(self):
         """Empties whole Recommendations table from database"""
