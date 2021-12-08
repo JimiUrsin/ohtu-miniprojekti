@@ -3,6 +3,7 @@ __pycache__
 *.sqlite
 data/database.db
 .coverage
+.vscode
 
 # Robot Framework files
 log.html
