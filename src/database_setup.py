@@ -4,6 +4,8 @@ from database_connection import get_database_connection, get_test_database_conne
 dirname = os.path.dirname(__file__)
 
 class DataBase:
+    """Provides functions for database initialization and teardown"""
+
     def create_tables(self, connection):
         """Executes schema.sql using the given connection and returns True on success"""
         cursor = connection.cursor()
