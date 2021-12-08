@@ -23,7 +23,6 @@ jobs:
         run: poetry install
       - name: Run pylint
         run: poetry run pylint src --rcfile=".pylintrc"
-        continue-on-error: true
       - name: Run tests
         run: poetry run coverage run --branch -m pytest
       - name: Coverage report
