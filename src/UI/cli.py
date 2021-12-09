@@ -87,7 +87,7 @@ class CLI:
 
         self._print_recommendations(all_items, True)
         recommendation_index = self.io.read(
-            "Ented the number of the recommendation you would like to edit, or cancel with 0: ")
+            "Enter the number of the recommendation you would like to edit, or cancel with 0: ")
 
         # Shift the index one down since we are leaving 0 input for cancel
         recommendation_index_int = int(recommendation_index) - 1
