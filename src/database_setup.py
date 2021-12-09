@@ -17,6 +17,7 @@ class DataBase:
         """Drops the Recommendations table using the given connection and returns True on success"""
         cursor = connection.cursor()
         cursor.execute("DROP TABLE IF EXISTS Recommendations;")
+        cursor.execute("DROP TABLE IF EXISTS Authors;")
         return True
 
     def initialize_database(self):
