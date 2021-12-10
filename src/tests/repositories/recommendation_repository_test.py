@@ -83,3 +83,8 @@ class TestRecommendationRepository(unittest.TestCase):
         self.assertIsInstance(empty_tables_return, sqlite3.OperationalError)
 
         DataBase().initialize_test_database()
+
+    def test_i_insert_recommendation_query_creator_return_correct_string(self):
+        column_names = ["title", "type", "url"]
+        sql_query = self.repository.create_query_for_inserting_recommendation(column_names)
+        self.assertEqual(sql_query, "INSERT INTO Recommendations (title, type, url) VALUES (?, ?, ?)")
