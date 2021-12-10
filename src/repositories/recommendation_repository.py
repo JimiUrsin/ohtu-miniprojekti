@@ -57,28 +57,39 @@ class RecommendationRepository:
 
         return result
 
-    def insert_recommendation(self, title, recom_type, author, recom_details):
+    def insert_recommendation(self, author, recom_details):
         """Inserts a recommendation to database with title and recommendation type
 
         Args:
             title: A title of recommendation
+            recom_type: Type of recommendation (blog, book, video, podcast)
+            author: Name of author
+            recom_details: A dictionary containing the details of given recommendation.
 
         Returns:
             None if success, sqlite3.OperationalError object if db error
         """
 
-        query = "INSERT INTO Recommendations (title, type, url) VALUES (?,?,?)"
+        if "title" not in recom_details or "type" not in recom_details:
+            raise Exception("Missing required information for creating Recommendartion")
+            
+        if recom_details["type"] != "book":
+            # Handle inserting blog, video or podcast
+            if "url" not in recom_details:
+                raise Exception("Missing required information for creating Recommendartion")
+            
+        
 
-        write = self._write_db(query, [title, recom_type, recom_details])
+       # write = self._write_db(query, recom_details.values())
         
-        query_find_id = "SELECT id FROM Recommendations WHERE title = ? AND url = ?"
-        
-        rec_id = self._read_db(query_find_id, [title, recom_details])
-        use_id = 0
-        for i in rec_id:
-            use_id = i[0]
+        # query_find_id = "SELECT id FROM Recommendations WHERE title = ? AND url = ?"
+        query = self.create_query_for_inserting_recommendation(recom_details.keys())
+        rec_id = self._write_db_return_id(query, list(recom_details.values()))
+
+        print(rec_id)
+
         query_add_author = "INSERT INTO Authors (recom_id, author) VALUES (?,?)"
-        return self._write_db(query_add_author, [use_id, author])
+        return self._write_db(query_add_author, [str(rec_id), author])
 
     def delete_recommendation_by_id(self, db_id):
         """Delete a recommendation by title from database
@@ -154,6 +165,28 @@ class RecommendationRepository:
         except self.connection.Error as error:
             return error
 
+    def create_query_for_inserting_recommendation(self, column_names):
+        """A method that generates a SQL query for inserting values to DB tabel
+
+        Args:
+            column_names[list]: List of names of columns, where data will be inserted
+                with the query
+        """
+
+        variables = ""
+        question_marks = ""
+        for index, value in enumerate(column_names):
+            variables = f"{variables}{value}"
+            question_marks = f"{question_marks}?"
+
+            if index < len(column_names) - 1:
+                variables = f"{variables}, "
+                question_marks = f"{question_marks}, "
+
+        sql_query = f"INSERT INTO Recommendations ({variables}) VALUES ({question_marks})"
+        return sql_query
+
+
     def _write_db(self, query, values):
         """A method for writing data to the database
 
@@ -173,6 +206,29 @@ class RecommendationRepository:
                 self.connection.commit()
 
                 return None
+
+        except self.connection.Error as error:
+            return error
+
+    def _write_db_return_id(self, query, values):
+        """A method for writing data to the database
+
+        Args:
+            query[str]:     SQL query
+            values[list]:   Query variables, e.g. a title
+
+        Returns:
+            If success:     None
+            If db error:    sqlite3.OperationalError object
+        """
+
+        try:
+            with self.connection:
+                cursor = self.connection.cursor()
+                self.connection.execute(query, values)
+                self.connection.commit()
+
+                return cursor.lastrowid
 
         except self.connection.Error as error:
             return error
