@@ -71,14 +71,14 @@ class CLI:
             self._print_recommendations(all_items)
 
     def _edit_or_delete_recommendation(self):
-        recommendation_chosen_for_editing = self._ask_which_recommendation_to_edit()
+        recommendation_chosen_for_editing = self._ask_for_recommendation_to_edit()
         if recommendation_chosen_for_editing:
             self._ask_edit_or_delete_recommendation(
                 recommendation_chosen_for_editing[0],
                 recommendation_chosen_for_editing[1]
             )
 
-    def _ask_which_recommendation_to_edit(self):
+    def _ask_for_recommendation_to_edit(self):
         all_items = self.service.get_recommendations()
 
         if not all_items or len(all_items) < 1:
