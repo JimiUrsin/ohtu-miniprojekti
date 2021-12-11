@@ -9,9 +9,14 @@ CREATE TABLE if not exists Recommendations
     comment TEXT
 );
 
+CREATE TABLE if not exists AuthorRecommendations
+(
+    recom_id INTEGER REFERENCES Recommendations(id) NOT NULL,
+    author_id INTEGER REFERENCES Authors(id) NOT NULL
+);
+
 CREATE TABLE if not exists Authors
 (
     id INTEGER PRIMARY KEY,
-    recom_id INTEGER REFERENCES Recommendations(id),
     author TEXT
-)
+);
