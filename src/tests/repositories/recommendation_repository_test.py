@@ -109,3 +109,12 @@ class TestRecommendationRepository(unittest.TestCase):
         self.assertEqual(results["description"], "Wizkidin biisi")
         self.assertEqual(results["comment"], "Bängeri")
 
+    def test_m_deleting_last_recommendation_of_author_deletes_author(self):
+        details = {"title": "WizKid - Mighty Wine (Audio)", "author": "StarBoy TV", "type": "video", "url": "https://www.youtube.com/watch?v=_KXHTdq9URg", "description": "Wizkidin biisi", "comment": "Bängeri"}
+        self.assertEqual(self.repository.insert_recommendation(details), None)
+        self.assertEqual(self.repository.delete_recommendation_by_id(1), None)
+
+        results = self.repository._read_db("SELECT * FROM Authors")
+        self.assertEqual(len(results), 0)
+
+

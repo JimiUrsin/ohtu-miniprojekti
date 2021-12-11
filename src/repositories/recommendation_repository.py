@@ -64,10 +64,10 @@ class RecommendationRepository:
             author: Name of author
             recom_details: A dictionary containing the details of given recommendation. Example:
                 {
-                    "title": "My Day", 
-                    "author": "Sita Salminen", 
-                    "type": "video", 
-                    "url": "https://youtube.com", 
+                    "title": "My Day",
+                    "author": "Sita Salminen",
+                    "type": "video",
+                    "url": "https://youtube.com",
                     "description": "Video Sitan päivästä",
                     "comment": "Ihan hyvä video"
                 }
@@ -78,12 +78,12 @@ class RecommendationRepository:
 
         if "title" not in recom_details or "type" not in recom_details or "author" not in recom_details:
             raise Exception("Missing required information for creating Recommendartion")
-            
+
         if recom_details["type"] != "book":
             # Blog, video or podcast must have URL
             if "url" not in recom_details:
                 raise Exception("Missing required information for creating Recommendartion")
-            
+
         author = recom_details["author"]
         del recom_details["author"]
 
@@ -93,19 +93,22 @@ class RecommendationRepository:
         if not isinstance(recommendation_id, int):
             # Database Error, return OperationalError object
             return recommendation_id
-            
+
         author_id = self._create_author_if_needed(author)
 
         if not isinstance(author_id, int):
             # Database Error, return OperationalError object
-            return author_id 
+            return author_id
 
-        return self._write_db("INSERT INTO AuthorRecommendations (recom_id, author_id) VALUES (?, ?)", [recommendation_id, author_id])
+        return self._write_db(
+            "INSERT INTO AuthorRecommendations (recom_id, author_id) VALUES (?, ?)",
+            [recommendation_id, author_id]
+        )
 
     def _create_author_if_needed(self, author):
-        """Check if author is already present in the database. If author not present, 
+        """Check if author is already present in the database. If author not present,
             creates an entry of it in Authors table.
-        
+
         Args:
             author: Name of the author
 
@@ -139,7 +142,7 @@ class RecommendationRepository:
 
         query_delete_connection = "DELETE FROM AuthorRecommendations WHERE recom_id = ?"
 
-        return self._write_db(query_delete_recommendation, [db_id])
+        return self._write_db(query_delete_connection, [db_id])
 
     def edit_recommendation_title(self, new_value, db_id):
         """Edit recommendation title in database
@@ -288,4 +291,3 @@ class RecommendationRepository:
 
         except self.connection.Error as error:
             return error
-
