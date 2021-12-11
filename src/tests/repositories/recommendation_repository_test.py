@@ -117,4 +117,15 @@ class TestRecommendationRepository(unittest.TestCase):
         results = self.repository._read_db("SELECT * FROM Authors")
         self.assertEqual(len(results), 0)
 
+    def test_n_creating_recommendation_with_unvalid_information_raises_exception(self):
+        with self.assertRaises(Exception) as error:
+            recommendation_details = {"title": "Kaverin Puolesta Kyselen", "type": "book"}
+            self.repository.insert_recommendation(recommendation_details)
 
+        with self.assertRaises(Exception) as error:
+            recommendation_details = {"title": "Kaverin Puolesta Kyselen", "author": "YLE"}
+            self.repository.insert_recommendation(recommendation_details)
+
+        with self.assertRaises(Exception) as error:
+            recommendation_details = {"title": "Kaverin Puolesta Kyselen", "author": "YLE", "type": "podcast"}
+            self.repository.insert_recommendation(recommendation_details)

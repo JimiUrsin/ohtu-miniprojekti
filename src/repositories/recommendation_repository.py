@@ -58,7 +58,14 @@ class RecommendationRepository:
         return result
 
     def insert_recommendation(self, recom_details):
-        """Inserts a recommendation to database with title and recommendation type
+        """Inserts a recommendation to database.
+            This method checks that a Recommendation has the required values and
+            raises an Exception if the fields are not found. The requirements are
+            as follows (required fields marked with *):
+            - Book: Title*, Author*, ISBN, Description, Comment
+            - Video: Title*, Author*, URL*, Description, Comment
+            - Blog: Title*, Author*, URL*, Description, Comment
+            - Podcast: Title*, Author*, URL*, Description, Comment
 
         Args:
             author: Name of author
@@ -75,14 +82,7 @@ class RecommendationRepository:
         Returns:
             None if success, sqlite3.OperationalError object if db error
         """
-
-        if "title" not in recom_details or "type" not in recom_details or "author" not in recom_details:
-            raise Exception("Missing required information for creating Recommendartion")
-
-        if recom_details["type"] != "book":
-            # Blog, video or podcast must have URL
-            if "url" not in recom_details:
-                raise Exception("Missing required information for creating Recommendartion")
+        self._check_insertion_fields(recom_details)
 
         author = recom_details["author"]
         del recom_details["author"]
@@ -104,6 +104,16 @@ class RecommendationRepository:
             "INSERT INTO AuthorRecommendations (recom_id, author_id) VALUES (?, ?)",
             [recommendation_id, author_id]
         )
+
+    def _check_insertion_fields(self, recom_details):
+        """Handles checking that necessary fields for creating a Recommendation are provided"""
+        if "title" not in recom_details or "type" not in recom_details or "author" not in recom_details:
+            raise Exception("Missing required information for creating Recommendartion")
+
+        if recom_details["type"] != "book":
+            # Blog, video or podcast must have URL
+            if "url" not in recom_details:
+                raise Exception("Missing required information for creating Recommendartion")
 
     def _create_author_if_needed(self, author):
         """Check if author is already present in the database. If author not present,
@@ -128,8 +138,10 @@ class RecommendationRepository:
         return author_id
 
     def delete_recommendation_by_id(self, db_id):
-        """Delete recommendation by its id. Also removes connection to its Author.
-
+        """Delete recommendation by its id. Also removes connection to
+            its Author (deleted by SQL trigger DeleteAuthorConnectionWithRecommendation).
+            If last recommendation associated with an author is deleted,
+            then the author is deleted aswell (SQL Trigger DeleteAuthorWithLastRecommendation)
         Args:
             db_id: An id of the recommendation
 
@@ -138,11 +150,8 @@ class RecommendationRepository:
         """
 
         query_delete_recommendation = "DELETE FROM Recommendations WHERE id = ?"
-        self._write_db(query_delete_recommendation, [db_id])
 
-        query_delete_connection = "DELETE FROM AuthorRecommendations WHERE recom_id = ?"
-
-        return self._write_db(query_delete_connection, [db_id])
+        return self._write_db(query_delete_recommendation, [db_id])
 
     def edit_recommendation_title(self, new_value, db_id):
         """Edit recommendation title in database
@@ -179,7 +188,7 @@ class RecommendationRepository:
         return self._run_db_command("DELETE FROM Recommendations")
 
     def create_query_for_inserting_recommendation(self, column_names):
-        """A method that generates a SQL query for inserting values to DB tabel
+        """A method that generates a SQL query string for inserting values to DB table
 
         Args:
             column_names[list]: List of names of columns, where data will be inserted
