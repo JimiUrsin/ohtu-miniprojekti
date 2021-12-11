@@ -20,3 +20,10 @@ CREATE TABLE if not exists Authors
     id INTEGER PRIMARY KEY,
     author TEXT
 );
+
+CREATE TRIGGER DeleteAuthorWithLastRecommendation
+AFTER DELETE ON AuthorRecommendations
+WHEN NOT EXISTS (SELECT 1 FROM AuthorRecommendations WHERE author_id = OLD.author_id)
+BEGIN
+    DELETE FROM Authors WHERE id = OLD.author_id;
+END;
