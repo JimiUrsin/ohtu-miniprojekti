@@ -25,6 +25,7 @@ class DataBase:
         """Drops the trigger for deleting Author with deletion last Recommendation"""
         cursor = connection.cursor()
         cursor.execute("DROP TRIGGER IF EXISTS DeleteAuthorWithLastRecommendation;")
+        cursor.execute("DROP TRIGGER IF EXISTS DeleteAuthorConnectionWithRecommendation;")
         return True
 
     def initialize_database(self):

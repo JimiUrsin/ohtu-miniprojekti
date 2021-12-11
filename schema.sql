@@ -21,6 +21,12 @@ CREATE TABLE if not exists Authors
     author TEXT
 );
 
+CREATE TRIGGER DeleteAuthorConnectionWithRecommendation
+AFTER DELETE ON Recommendations
+BEGIN
+    DELETE FROM AuthorRecommendations WHERE recom_id = OLD.id;
+END;
+
 CREATE TRIGGER DeleteAuthorWithLastRecommendation
 AFTER DELETE ON AuthorRecommendations
 WHEN NOT EXISTS (SELECT 1 FROM AuthorRecommendations WHERE author_id = OLD.author_id)
