@@ -58,6 +58,7 @@ class RecommendationRepository:
         return result
 
     def insert_recommendation(self, recom_details):
+<<<<<<< HEAD
         """Inserts a recommendation to database.
             This method checks that a Recommendation has the required values and
             raises an Exception if the fields are not found. The requirements are
@@ -66,6 +67,9 @@ class RecommendationRepository:
             - Video: Title*, Author*, URL*, Description, Comment
             - Blog: Title*, Author*, URL*, Description, Comment
             - Podcast: Title*, Author*, URL*, Description, Comment
+=======
+        """Inserts a recommendation to database with title and recommendation type
+>>>>>>> 91a173d57e0113b34a7ddf98a7d09c2cc63701eb
 
         Args:
             author: Name of author
@@ -84,6 +88,7 @@ class RecommendationRepository:
         """
         self._check_insertion_fields(recom_details)
 
+<<<<<<< HEAD
         author = recom_details["author"]
         del recom_details["author"]
 
@@ -136,6 +141,61 @@ class RecommendationRepository:
         author_id = self._write_db_return_id("INSERT INTO Authors (author) VALUES (?)", [author])
 
         return author_id
+=======
+        if "title" not in recom_details or "type" not in recom_details or "author" not in recom_details:
+            raise Exception("Missing required information for creating Recommendartion")
+
+        if recom_details["type"] != "book":
+            # Blog, video or podcast must have URL
+            if "url" not in recom_details:
+                raise Exception("Missing required information for creating Recommendartion")
+
+        author = recom_details["author"]
+        del recom_details["author"]
+
+        query_recommendation_insertion = self.create_query_for_inserting_recommendation(recom_details.keys())
+        recommendation_id = self._write_db_return_id(query_recommendation_insertion, list(recom_details.values()))
+
+        if not isinstance(recommendation_id, int):
+            # Database Error, return OperationalError object
+            return recommendation_id
+
+        author_id = self._create_author_if_needed(author)
+
+        if not isinstance(author_id, int):
+            # Database Error, return OperationalError object
+            return author_id
+
+        return self._write_db(
+            "INSERT INTO AuthorRecommendations (recom_id, author_id) VALUES (?, ?)",
+            [recommendation_id, author_id]
+        )
+
+    def _create_author_if_needed(self, author):
+        """Check if author is already present in the database. If author not present,
+            creates an entry of it in Authors table.
+
+        Args:
+            author: Name of the author
+
+        Returns:
+            Id of author
+        """
+
+        author_query = "SELECT id FROM Authors WHERE author = ?"
+        results = self._read_db(author_query, [author])
+
+        if len(results) > 0:
+            author_id = results[0][0]
+            return author_id
+
+        author_id = self._write_db_return_id("INSERT INTO Authors (author) VALUES (?)", [author])
+
+        return author_id
+
+    def delete_recommendation_by_id(self, db_id):
+        """Delete recommendation by its id. Also removes connection to its Author.
+>>>>>>> 91a173d57e0113b34a7ddf98a7d09c2cc63701eb
 
     def delete_recommendation_by_id(self, db_id):
         """Delete recommendation by its id. Also removes connection to
@@ -150,8 +210,16 @@ class RecommendationRepository:
         """
 
         query_delete_recommendation = "DELETE FROM Recommendations WHERE id = ?"
+<<<<<<< HEAD
 
         return self._write_db(query_delete_recommendation, [db_id])
+=======
+        self._write_db(query_delete_recommendation, [db_id])
+
+        query_delete_connection = "DELETE FROM AuthorRecommendations WHERE recom_id = ?"
+
+        return self._write_db(query_delete_connection, [db_id])
+>>>>>>> 91a173d57e0113b34a7ddf98a7d09c2cc63701eb
 
     def edit_recommendation_title(self, new_value, db_id):
         """Edit recommendation title in database
@@ -188,7 +256,11 @@ class RecommendationRepository:
         return self._run_db_command("DELETE FROM Recommendations")
 
     def create_query_for_inserting_recommendation(self, column_names):
+<<<<<<< HEAD
         """A method that generates a SQL query string for inserting values to DB table
+=======
+        """A method that generates a SQL query for inserting values to DB tabel
+>>>>>>> 91a173d57e0113b34a7ddf98a7d09c2cc63701eb
 
         Args:
             column_names[list]: List of names of columns, where data will be inserted
