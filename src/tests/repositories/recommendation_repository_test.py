@@ -88,3 +88,24 @@ class TestRecommendationRepository(unittest.TestCase):
         column_names = ["title", "type", "url"]
         sql_query = self.repository.create_query_for_inserting_recommendation(column_names)
         self.assertEqual(sql_query, "INSERT INTO Recommendations (title, type, url) VALUES (?, ?, ?)")
+
+    def test_j_create_new_author(self):
+        author_id = self.repository._create_author_if_needed("Antti Holma")
+        self.assertEqual(author_id, 1)
+
+    def test_k_new_author_not_created_when_already_exists(self):
+        self.repository._run_db_command('INSERT INTO Authors (author) VALUES ("Antti Holma")')
+        author_id_antti = self.repository._read_db('SELECT id FROM Authors WHERE author = "Antti Holma"')[0][0]
+        self.assertEqual(self.repository._create_author_if_needed("Antti Holma"), author_id_antti)
+
+    def test_l_insert_new_recommendation_successfull_and_recommendation_can_be_found(self):
+        details = {"title": "WizKid - Mighty Wine (Audio)", "author": "StarBoy TV", "type": "video", "url": "https://www.youtube.com/watch?v=_KXHTdq9URg", "description": "Wizkidin biisi", "comment": "Bängeri"}
+        self.assertEqual(self.repository.insert_recommendation(details), None)
+        
+        results = self.repository._read_db("SELECT * FROM Recommendations WHERE title = ?", ["WizKid - Mighty Wine (Audio)"])[0]
+        self.assertEqual(results["id"], 1)
+        self.assertEqual(results["title"], "WizKid - Mighty Wine (Audio)")
+        self.assertEqual(results["type"], "video")
+        self.assertEqual(results["description"], "Wizkidin biisi")
+        self.assertEqual(results["comment"], "Bängeri")
+
