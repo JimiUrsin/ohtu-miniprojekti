@@ -24,11 +24,30 @@ class RecommendationRepository:
             If db error:    sqlite3.OperationalError object
         """
 
-        query = "SELECT * FROM Recommendations"
+        query = (
+            "SELECT Recommendations.id, Recommendations.title, Recommendations.type, "
+            "Authors.author, Recommendations.url, Recommendations.isbn, Recommendations.description, "
+            "Recommendations.comment "
+            "FROM Recommendations, AuthorRecommendations, Authors "
+            "WHERE Recommendations.id = AuthorRecommendations.recom_id "
+            "AND Authors.id = AuthorRecommendations.author_id"
+        )
         results = self._read_db(query)
 
         if isinstance(results, list):
-            recommendations = [Recommendation(result['title'], result['type'], result['id']) for result in results]
+            recommendations = []
+            for result in results:
+                recommendation = Recommendation(
+                    result['title'],
+                    result['type'],
+                    result['id'],
+                    result['author'],
+                    result['url'],
+                    result['isbn'],
+                    result['description'],
+                    result['comment']
+                )
+                recommendations.append(recommendation)
         else:
             recommendations = results
 
@@ -45,17 +64,49 @@ class RecommendationRepository:
             If not:         an empty list
             If db error:    sqlite3.OperationalError object
         """
-
-        query = "SELECT * FROM Recommendations WHERE title = ?"
+        query = (
+            "SELECT Recommendations.id, Recommendations.title, Recommendations.type, "
+            "Authors.author, Recommendations.url, Recommendations.isbn, Recommendations.description, "
+            "Recommendations.comment "
+            "FROM Recommendations, AuthorRecommendations, Authors "
+            "WHERE title = ? "
+            "AND Recommendations.id = AuthorRecommendations.recom_id "
+            "AND Authors.id = AuthorRecommendations.author_id"
+        )
         results = self._read_db(query, [title])
 
         if isinstance(results, list) and len(results) > 0:
-            result = Recommendation(results[0]['title'], results[0]['type'], results[0]['id'])
-            print(result)
+            recommendation = Recommendation(
+                    results[0]['title'],
+                    results[0]['type'],
+                    results[0]['id'],
+                    results[0]['author'],
+                    results[0]['url'],
+                    results[0]['isbn'],
+                    results[0]['description'],
+                    results[0]['comment']
+                )
+            return recommendation
         else:
             result = results
 
         return result
+
+    def _find_recommendation_author(self, recommendation_id):
+        """Finds the author of a given recommendation
+      
+        Args:
+            recommendation_id: id of recommendation
+
+        Returns:
+            Name of author
+        """
+        results = self._read_db("SELECT author_id FROM AuthorRecommendations WHERE recom_id = ?", [recommendation_id])
+        author_id = results[0]["author_id"]
+
+        results = self._read_db("SELECT author FROM Authors WHERE id = ?", [author_id])
+        name_of_author = results[0]["author"]
+        return name_of_author
 
     def insert_recommendation(self, recom_details):
         """Inserts a recommendation to database.

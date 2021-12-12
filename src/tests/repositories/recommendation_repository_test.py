@@ -13,15 +13,35 @@ class TestRecommendationRepository(unittest.TestCase):
 
         cls.repository.empty_tables()
 
-        cls.recom_lotr = Recommendation("LOTR", "book", 1)
-        cls.recom_hp = Recommendation("Harry Potter", "video", 2)
-        cls.recom_ds = Recommendation("Data Structures and Algorithms", "blog", 3)
+        cls.recom_lotr = {
+            "title": "LOTR", 
+            "type": "book", 
+            "author": "J. R. R. Tolkien", 
+            "isbn": "978-3-16-148410-0", 
+            "description": "A book", 
+            "comment": "Nice"
+        }
+
+        cls.recom_hp = {
+            "title": "Harry Potter",
+            "type": "video",
+            "author": "Alfonso Cuarón",
+            "url": "https://www.hbomax.com/",
+            "description": "A movia about a book"
+        }
+
+        cls.recom_ds = {
+            "title": "Data Structures and Algorithms",
+            "type": "blog",
+            "author": "Thomas H. Cormen", 
+            "url": "https://google.fi"
+        }
 
         cls.recommendations = [cls.recom_lotr, cls.recom_hp, cls.recom_ds]
 
     def test_a_insert_recommendation(self):
         for recom in self.recommendations:
-            self.assertIsNone(self.repository.insert_recommendation(recom.title, recom.type))
+            self.assertIsNone(self.repository.insert_recommendation(recom))
 
     def test_b_find_all_recommendations(self):        
         results = self.repository.find_all_recommendations()
@@ -29,15 +49,18 @@ class TestRecommendationRepository(unittest.TestCase):
         self.assertEqual(len(results), 3)
         self.assertIsInstance(results[0], Recommendation)
         self.assertEqual(results[0].title, "LOTR")
-        self.assertEqual(results[-1].title, "Data Structures and Algorithms")
-        self.assertEqual(results[-1].db_id, self.recommendations[-1].db_id)
+        self.assertEqual(results[0].author, "J. R. R. Tolkien")
+        self.assertEqual(results[0].isbn, "978-3-16-148410-0")
+        self.assertEqual(results[1].author, "Alfonso Cuarón")
+        self.assertIsNone(results[1].comment)
+        self.assertEqual(results[2].title, "Data Structures and Algorithms")
+        self.assertEqual(results[2].author, "Thomas H. Cormen")
 
     def test_c_find_recommendation_by_title(self):
         result = self.repository.find_recommendation_by_title("Harry Potter")
 
-        self.assertEqual(result.title, self.recommendations[1].title)
+        self.assertEqual(result.title, self.recommendations[1]["title"])
         self.assertIsInstance(result, Recommendation)
-        self.assertEqual(result.db_id, self.recommendations[1].db_id)
         self.assertEqual(len(self.repository.find_recommendation_by_title("AIs")), 0)
         self.assertIsInstance(self.repository.find_recommendation_by_title("AIs"), list)
 
@@ -74,12 +97,10 @@ class TestRecommendationRepository(unittest.TestCase):
 
         results = self.repository.find_all_recommendations()
         result = self.repository.find_recommendation_by_title("Harry Potter")
-        insert_return = self.repository.insert_recommendation("Pippa Possun retket", "video")
         empty_tables_return = self.repository.empty_tables()
 
         self.assertIsInstance(result, sqlite3.OperationalError)
         self.assertIsInstance(results, sqlite3.OperationalError)
-        self.assertIsInstance(insert_return, sqlite3.OperationalError)
         self.assertIsInstance(empty_tables_return, sqlite3.OperationalError)
 
         DataBase().initialize_test_database()
@@ -129,3 +150,11 @@ class TestRecommendationRepository(unittest.TestCase):
         with self.assertRaises(Exception) as error:
             recommendation_details = {"title": "Kaverin Puolesta Kyselen", "author": "YLE", "type": "podcast"}
             self.repository.insert_recommendation(recommendation_details)
+
+    def test_o_find_author_of_recommendation(self):
+        details = {"title": "WizKid - Mighty Wine (Audio)", "author": "StarBoy TV", "type": "video", "url": "https://www.youtube.com/watch?v=_KXHTdq9URg", "description": "Wizkidin biisi", "comment": "Bängeri"}
+        self.assertEqual(self.repository.insert_recommendation(details), None)
+
+        self.assertEqual(self.repository._find_recommendation_author(1), "StarBoy TV")
+
+
