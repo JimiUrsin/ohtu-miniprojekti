@@ -86,20 +86,23 @@ class CLI:
         all_items = self.service.get_recommendations()
         if not all_items or len(all_items) < 1:
             self.io.write('You have no recommendations saved.')
+            self.io.print_countdown(3)
         else:
             self.io.write('You have saved the following recommendations:')
             self._print_recommendations(all_items)
+            self.io.read("\nPress Enter to return to the main menu")
 
     def _edit_or_delete_recommendation(self):
         recommendation_chosen_for_editing = self._ask_which_recommendation_to_edit()
-        self.io.clear()
         if recommendation_chosen_for_editing:
             self._ask_edit_or_delete_recommendation(
                 recommendation_chosen_for_editing[0],
                 recommendation_chosen_for_editing[1]
             )
+        self.io.print_countdown(3)
 
     def _ask_which_recommendation_to_edit(self):
+        self.io.clear()
         all_items = self.service.get_recommendations()
 
         if not all_items or len(all_items) < 1:
@@ -107,8 +110,9 @@ class CLI:
             return None
 
         self._print_recommendations(all_items, True)
-        recommendation_index = self.io.read(
-            "Enter the number of the recommendation you would like to edit, or cancel with 0: ")
+        self.io.write("\nEnter the number of the recommendation you would like to edit, or cancel with 0\n")
+
+        recommendation_index = self.io.read("Your selection: ")
 
         # Shift the index one down since we are leaving 0 input for cancel
         recommendation_index_int = int(recommendation_index) - 1
@@ -118,6 +122,7 @@ class CLI:
 
     def _ask_edit_or_delete_recommendation(self, recommendation, recommendation_index):
         while True:
+            self.io.clear()
             self.io.write(recommendation.title)
 
             self.io.write("\n1: Edit this recommendation\n"
@@ -137,6 +142,8 @@ class CLI:
 
                 if not success_edit_type or not success_edit_title:
                     self.io.write("Editing Recommendation was not successful")
+                else:
+                    self.io.write("Recommendation edited successfully!\n\n")
                 break
 
             if action == '2':
@@ -145,9 +152,9 @@ class CLI:
                     success_deletition = self.service.delete_recommendation(recommendation_index)
                     if not success_deletition:
                         self.io.write("Deleting Recommendation was not successful")
+                    else:
+                        self.io.write("Recommendation deleted successfully!\n\n")
                     break
-
-        self.io.print_countdown(5)
 
     def _print_recommendations(self, recommendations, display_index = False):
         for index, title in enumerate(recommendations):
