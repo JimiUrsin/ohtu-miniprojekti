@@ -21,6 +21,7 @@ class StubIO:
         self.inputs.append(fake_user_input)
 
     def print_countdown(self, duration):
+        """Adds a countdown to the output list"""
         for i in reversed(range(duration + 1)):
             self.inputs.append("\rReturning to the main menu in " + str(i) + " seconds")
 

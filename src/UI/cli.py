@@ -42,8 +42,8 @@ class CLI:
 
             if check:
                 return (title, recom_type)
-            else:
-                self.io.clear()
+
+            self.io.clear()
 
 
     def _confirm_user_input(self, title, recom_type):
