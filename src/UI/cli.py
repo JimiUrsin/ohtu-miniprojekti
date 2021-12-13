@@ -8,10 +8,11 @@ class CLI:
     def start(self):
         """Start the main CLI routine."""
 
-        self.io.write('Welcome! Choose an action: ')
         while True:
-            action = self.io.read(
-                '1: Add a recommendation, 2: Browse recommendations, 3: Edit or delete recommendations, 0: Quit ')
+            self._print_welcome_message()
+            action = self.io.read("Your selection: ")
+            self.io.clear()
+
             if action == '0':
                 break
             if action == '1':
@@ -25,7 +26,8 @@ class CLI:
     def _add_new(self):
         input_for_recommendation = self._ask_for_recommendation_inputs()
         self.service.create_new_recommendation(input_for_recommendation[0], input_for_recommendation[1])
-        self.io.write(f'"{input_for_recommendation[0]}" was added!')
+        self.io.write(f'"{input_for_recommendation[0]}" was added!\n\n')
+        self.io.print_countdown(3)
 
     def _ask_for_recommendation_inputs(self):
         """Prompts user to input the title and type of a recommendations.
@@ -41,18 +43,36 @@ class CLI:
             if check:
                 return (title, recom_type)
 
+            self.io.clear()
+
 
     def _confirm_user_input(self, title, recom_type):
-        check = self.io.read(
-            f'Is "{title}", {recom_type}, correct? 1: Yes, 2: No, reinput information ')
+        self.io.clear()
+
+        self.io.write(f'Is "{title}", {recom_type}, correct?')
+
+        self.io.write('\n1: Yes\n'
+            '2: No, reinput information\n')
+
+        check = self.io.read('Your selection: ')
+
         return check == '1'
 
 
     def _input_type(self):
         type_input = None
+
+        self.io.write(
+            "Choose the type of the item:\n\n"
+            "1: book\n"
+            "2: video\n"
+            "3: blog\n"
+            "4: podcast\n"
+        )
         while True:
+
             type_input = self.io.read(
-                'Choose the type of the item. 1: book, 2: video, 3: blog, 4: podcast ')
+                'Your selection: ')
             if type_input == '1':
                 return 'book'
             if type_input == '2':
@@ -66,9 +86,11 @@ class CLI:
         all_items = self.service.get_recommendations()
         if not all_items or len(all_items) < 1:
             self.io.write('You have no recommendations saved.')
+            self.io.print_countdown(3)
         else:
             self.io.write('You have saved the following recommendations:')
             self._print_recommendations(all_items)
+            self.io.read("\nPress Enter to return to the main menu")
 
     def _edit_or_delete_recommendation(self):
         recommendation_chosen_for_editing = self._ask_which_recommendation_to_edit()
@@ -77,8 +99,10 @@ class CLI:
                 recommendation_chosen_for_editing[0],
                 recommendation_chosen_for_editing[1]
             )
+        self.io.print_countdown(3)
 
     def _ask_which_recommendation_to_edit(self):
+        self.io.clear()
         all_items = self.service.get_recommendations()
 
         if not all_items or len(all_items) < 1:
@@ -86,8 +110,9 @@ class CLI:
             return None
 
         self._print_recommendations(all_items, True)
-        recommendation_index = self.io.read(
-            "Enter the number of the recommendation you would like to edit, or cancel with 0: ")
+        self.io.write("\nEnter the number of the recommendation you would like to edit, or cancel with 0\n")
+
+        recommendation_index = self.io.read("Your selection: ")
 
         # Shift the index one down since we are leaving 0 input for cancel
         recommendation_index_int = int(recommendation_index) - 1
@@ -97,8 +122,14 @@ class CLI:
 
     def _ask_edit_or_delete_recommendation(self, recommendation, recommendation_index):
         while True:
+            self.io.clear()
             self.io.write(recommendation.title)
-            action = self.io.read("1: Edit this recommendation, 2: Delete this recommendation, 0: Cancel ")
+
+            self.io.write("\n1: Edit this recommendation\n"
+                          "2: Delete this recommendation\n"
+                          "0: Cancel\n")
+
+            action = self.io.read("Your selection: ")
 
             if action == '0':
                 break
@@ -111,6 +142,8 @@ class CLI:
 
                 if not success_edit_type or not success_edit_title:
                     self.io.write("Editing Recommendation was not successful")
+                else:
+                    self.io.write("Recommendation edited successfully!\n\n")
                 break
 
             if action == '2':
@@ -119,9 +152,26 @@ class CLI:
                     success_deletition = self.service.delete_recommendation(recommendation_index)
                     if not success_deletition:
                         self.io.write("Deleting Recommendation was not successful")
+                    else:
+                        self.io.write("Recommendation deleted successfully!\n\n")
                     break
 
     def _print_recommendations(self, recommendations, display_index = False):
         for index, title in enumerate(recommendations):
             recommendation_string = f"{(index + 1)}: {title}" if display_index else title
             self.io.write(recommendation_string)
+
+    def _print_welcome_message(self):
+        self.io.clear()
+        welcome_text = " Welcome to your Recommendation library! "
+        horizontal_bar = "━" * len(welcome_text)
+
+        self.io.write("┏" + horizontal_bar + "┓")
+        self.io.write("┃" + welcome_text + "┃")
+        self.io.write("┗" + horizontal_bar + "┛")
+        self.io.write("Choose an action:\n")
+
+        self.io.write("1: Add a recommendation\n"
+                      "2: Browse recommendations\n"
+                      "3: Edit or delete recommendations\n"
+                      "0: Quit\n")
