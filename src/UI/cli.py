@@ -49,13 +49,12 @@ class CLI:
     def _confirm_user_input(self, title, recom_type):
         self.io.clear()
 
-        check = self.io.read(
-            f'Is "{title}", {recom_type}, correct?\n\n'
+        self.io.write(f'Is "{title}", {recom_type}, correct?')
 
-            '1: Yes\n'
-            '2: No, reinput information\n\n'
+        self.io.write('\n1: Yes\n'
+            '2: No, reinput information\n')
 
-            'Your selection: ')
+        check = self.io.read('Your selection: ')
 
         return check == '1'
 
