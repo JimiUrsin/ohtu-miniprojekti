@@ -25,14 +25,8 @@ class CLI:
 
     def _add_new(self):
         input_for_recommendation = self._ask_for_recommendation_inputs()
-<<<<<<< HEAD
-        self.service.create_new_recommendation(input_for_recommendation[0], input_for_recommendation[1])
-        self.io.write(f'"{input_for_recommendation[0]}" was added!\n\n')
-        self.io.print_countdown(3)
-=======
         self.service.create_new_recommendation(input_for_recommendation[0], input_for_recommendation[1], input_for_recommendation[2], input_for_recommendation[3])
         self.io.write(f'"{input_for_recommendation[0]}" was added!')
->>>>>>> repository-expansion
 
     def _ask_for_recommendation_inputs(self):
         """Prompts user to input the title and type of a recommendations.
@@ -53,22 +47,9 @@ class CLI:
             self.io.clear()
 
 
-<<<<<<< HEAD
-    def _confirm_user_input(self, title, recom_type):
-        self.io.clear()
-
-        self.io.write(f'Is "{title}", {recom_type}, correct?')
-
-        self.io.write('\n1: Yes\n'
-            '2: No, reinput information\n')
-
-        check = self.io.read('Your selection: ')
-
-=======
     def _confirm_user_input(self, title, author, recom_type, recom_details):
         check = self.io.read(
             f'Is "{title}", {author}, {recom_type}, {recom_details} correct? 1: Yes, 2: No, reinput information ')
->>>>>>> repository-expansion
         return check == '1'
 
 
