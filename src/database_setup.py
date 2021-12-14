@@ -17,6 +17,15 @@ class DataBase:
         """Drops the Recommendations table using the given connection and returns True on success"""
         cursor = connection.cursor()
         cursor.execute("DROP TABLE IF EXISTS Recommendations;")
+        cursor.execute("DROP TABLE IF EXISTS AuthorRecommendations")
+        cursor.execute("DROP TABLE IF EXISTS Authors;")
+        return True
+
+    def drop_trigger(self, connection):
+        """Drops the trigger for deleting Author with deletion last Recommendation"""
+        cursor = connection.cursor()
+        cursor.execute("DROP TRIGGER IF EXISTS DeleteAuthorWithLastRecommendation;")
+        cursor.execute("DROP TRIGGER IF EXISTS DeleteAuthorConnectionWithRecommendation;")
         return True
 
     def initialize_database(self):
@@ -25,6 +34,7 @@ class DataBase:
         connection.isolation_level = None
 
         self.drop_tables(connection)
+        self.drop_trigger(connection)
         self.create_tables(connection)
 
     def initialize_test_database(self):
@@ -33,6 +43,7 @@ class DataBase:
         connection.isolation_level = None
 
         self.drop_tables(connection)
+        self.drop_trigger(connection)
         self.create_tables(connection)
 
 db = DataBase()

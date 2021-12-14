@@ -25,9 +25,14 @@ class CLI:
 
     def _add_new(self):
         input_for_recommendation = self._ask_for_recommendation_inputs()
+<<<<<<< HEAD
         self.service.create_new_recommendation(input_for_recommendation[0], input_for_recommendation[1])
         self.io.write(f'"{input_for_recommendation[0]}" was added!\n\n')
         self.io.print_countdown(3)
+=======
+        self.service.create_new_recommendation(input_for_recommendation[0], input_for_recommendation[1], input_for_recommendation[2], input_for_recommendation[3])
+        self.io.write(f'"{input_for_recommendation[0]}" was added!')
+>>>>>>> repository-expansion
 
     def _ask_for_recommendation_inputs(self):
         """Prompts user to input the title and type of a recommendations.
@@ -36,16 +41,19 @@ class CLI:
 
         while True:
             title = self.io.read('Title of the item: ')
+            author = self.io.read('Author of the item: ')
             recom_type = self._input_type()
+            recom_details = self._get_recom_details(recom_type)
 
-            check =  self._confirm_user_input(title, recom_type)
+            check =  self._confirm_user_input(title, author, recom_type, recom_details)
 
             if check:
-                return (title, recom_type)
+                return (title, recom_type, author, recom_details)
 
             self.io.clear()
 
 
+<<<<<<< HEAD
     def _confirm_user_input(self, title, recom_type):
         self.io.clear()
 
@@ -56,6 +64,11 @@ class CLI:
 
         check = self.io.read('Your selection: ')
 
+=======
+    def _confirm_user_input(self, title, author, recom_type, recom_details):
+        check = self.io.read(
+            f'Is "{title}", {author}, {recom_type}, {recom_details} correct? 1: Yes, 2: No, reinput information ')
+>>>>>>> repository-expansion
         return check == '1'
 
 
@@ -81,6 +94,19 @@ class CLI:
                 return 'blog'
             if type_input == '4':
                 return 'podcast'
+                
+    def _get_recom_details(self, recom_type):
+        if recom_type == 'book':
+            return "None"
+        elif recom_type == 'video':
+            url = self.io.read('URL of the video: ')
+            return url
+        elif recom_type == 'blog':
+            url = self.io.read('URL of the video: ')
+            return url
+        elif recom_type == 'podcast':
+            url = self.io.read('URL of the video: ')
+            return url
 
     def _browse(self):
         all_items = self.service.get_recommendations()

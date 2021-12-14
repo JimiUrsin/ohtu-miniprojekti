@@ -7,7 +7,7 @@ class RecommendationService:
         self._recommendation_repository = recommendation_repository
         self._recommendations = None
 
-    def create_new_recommendation(self, title, recom_type):
+    def create_new_recommendation(self, title, recom_type, author, recom_details):
         """Inserts a new recommendation into the database
 
         Args:
@@ -22,7 +22,7 @@ class RecommendationService:
         validated = self._validate_recommendation(title, recom_type)
 
         if validated:
-            value = self._recommendation_repository.insert_recommendation(title, recom_type)
+            value = self._recommendation_repository.insert_recommendation(title, recom_type, author, recom_details)
 
             return value is None
 
