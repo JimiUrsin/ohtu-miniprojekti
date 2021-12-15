@@ -6,23 +6,23 @@ from database_connection import get_test_database_connection
 from repositories.recommendation_repository import RecommendationRepository
 
 class TestRecommendationRepository(unittest.TestCase):
-    @classmethod
-    def setUpClass(cls):
-        cls.test_db = get_test_database_connection()
-        cls.repository = RecommendationRepository(cls.test_db)
+    def setUp(self):
+        self.test_db = get_test_database_connection()
+        self.repository = RecommendationRepository(self.test_db)
 
-        cls.repository.empty_tables()
+        self.repository._run_db_command("DROP TABLE Recommendations")
+        DataBase().initialize_test_database()
 
-        cls.recom_lotr = {
-            "title": "LOTR", 
-            "type": "book", 
-            "author": "J. R. R. Tolkien", 
-            "isbn": "978-3-16-148410-0", 
-            "description": "A book", 
-            "comment": "Nice"
+        self.recom_lotr = {
+            "title": "LOTR",
+            "type": "book",
+            "author": "J. R. R. Tolkien",
+            "isbn": "978-3-16-148410-0",
+            "description": "A book",
+            "comment": "Nice",
         }
 
-        cls.recom_hp = {
+        self.recom_hp = {
             "title": "Harry Potter",
             "type": "video",
             "author": "Alfonso Cuarón",
@@ -30,131 +30,317 @@ class TestRecommendationRepository(unittest.TestCase):
             "description": "A movia about a book"
         }
 
-        cls.recom_ds = {
+        self.recom_ds = {
             "title": "Data Structures and Algorithms",
             "type": "blog",
             "author": "Thomas H. Cormen", 
             "url": "https://google.fi"
         }
 
-        cls.recommendations = [cls.recom_lotr, cls.recom_hp, cls.recom_ds]
+        self.recom_mc = {
+            "title": "Models of computation",
+            "type": "blog",
+            "author": "Thomas H. Cormen",
+            "url": "https://google.fi"
+        }
 
-    def test_a_insert_recommendation(self):
-        for recom in self.recommendations:
-            self.assertIsNone(self.repository.insert_recommendation(recom))
+        self.recommendations = [self.recom_lotr, self.recom_hp, self.recom_ds]
 
-    def test_b_find_all_recommendations(self):        
-        results = self.repository.find_all_recommendations()
-
-        self.assertEqual(len(results), 3)
-        self.assertIsInstance(results[0], Recommendation)
-        self.assertEqual(results[0].title, "LOTR")
-        self.assertEqual(results[0].author, "J. R. R. Tolkien")
-        self.assertEqual(results[0].isbn, "978-3-16-148410-0")
-        self.assertEqual(results[1].author, "Alfonso Cuarón")
-        self.assertIsNone(results[1].comment)
-        self.assertEqual(results[2].title, "Data Structures and Algorithms")
-        self.assertEqual(results[2].author, "Thomas H. Cormen")
-
-    def test_c_find_recommendation_by_title(self):
-        result = self.repository.find_recommendation_by_title("Harry Potter")
-
-        self.assertEqual(result.title, self.recommendations[1]["title"])
-        self.assertIsInstance(result, Recommendation)
-        self.assertEqual(len(self.repository.find_recommendation_by_title("AIs")), 0)
-        self.assertIsInstance(self.repository.find_recommendation_by_title("AIs"), list)
-
-    def test_d_delete_single_recommendation_find_by_id(self):
-        results = self.repository.find_all_recommendations()
-        self.assertEqual(len(results), 3)
-        self.repository.delete_recommendation_by_id(2)
-        results = self.repository.find_all_recommendations()
-        self.assertEqual(len(results), 2)
-
-    def test_e_edit_single_recommendation_title(self):
-        self.repository.edit_recommendation_title('LOTR_version2', 1)
-        results = self.repository.find_all_recommendations()
-        self.assertEqual(results[0].title, "LOTR_version2")
-
-    def test_f_edit_single_recommendation_type(self):
-        self.repository.edit_recommendation_type('video', 1)
-        results = self.repository.find_all_recommendations()
-        print(results[0])
-        print(results[0].title)
-        self.assertEqual(results[0].type, "video")
-
-
-    def test_g_empty_tables(self):
-        self.assertEqual(len(self.repository.find_all_recommendations()), 2)
-
-        return_value = self.repository.empty_tables()
-
-        self.assertIsNone(return_value)
+    def test_find_all_recommendations_returns_empty_list_when_empty(self):
         self.assertEqual(len(self.repository.find_all_recommendations()), 0)
 
-    def test_h_empty_database(self):
+    def test_find_all_recommendations_returns_non_empty_list_when_results(self):
+        self.repository.insert_recommendation(self.recom_lotr)
+
+        self.assertEqual(len(self.repository.find_all_recommendations()), 1)
+
+    def test_find_all_recommendations_returns_list_of_recommendation_objects(self):
+        self.repository.insert_recommendation(self.recom_lotr)
+
+        self.assertIsInstance(self.repository.find_all_recommendations()[0], Recommendation)
+
+    def test_find_all_recommendations_returns_correct_lenght_list(self):
+        for recommendation in self.recommendations:
+            self.repository.insert_recommendation(recommendation)
+
+        self.assertEqual(len(self.repository.find_all_recommendations()), 3)
+
+    def test_find_all_recommendations_returns_sqlite3_error_object_when_db_error(self):
         self.repository._run_db_command("DROP TABLE Recommendations")
 
-        results = self.repository.find_all_recommendations()
-        result = self.repository.find_recommendation_by_title("Harry Potter")
-        empty_tables_return = self.repository.empty_tables()
+        self.assertIsInstance(self.repository.find_all_recommendations(), sqlite3.OperationalError)
 
-        self.assertIsInstance(result, sqlite3.OperationalError)
-        self.assertIsInstance(results, sqlite3.OperationalError)
-        self.assertIsInstance(empty_tables_return, sqlite3.OperationalError)
+    def test_find_all_recommendations_returns_correct_object_when_book(self):
+        self.repository.insert_recommendation(self.recom_lotr.copy())
 
-        DataBase().initialize_test_database()
+        recommendation = self.repository.find_all_recommendations()[0]
 
-    def test_i_insert_recommendation_query_creator_return_correct_string(self):
-        column_names = ["title", "type", "url"]
-        sql_query = self.repository.create_query_for_inserting_recommendation(column_names)
-        self.assertEqual(sql_query, "INSERT INTO Recommendations (title, type, url) VALUES (?, ?, ?)")
+        self.assertEqual(recommendation.title, self.recom_lotr['title'])
+        self.assertEqual(recommendation.type, self.recom_lotr['type'])
+        self.assertEqual(recommendation.author, self.recom_lotr['author'])
+        self.assertEqual(recommendation.isbn, self.recom_lotr['isbn'])
+        self.assertEqual(recommendation.description, self.recom_lotr['description'])
+        self.assertEqual(recommendation.comment, self.recom_lotr['comment'])
 
-    def test_j_create_new_author(self):
-        author_id = self.repository._create_author_if_needed("Antti Holma")
-        self.assertEqual(author_id, 1)
+    def test_find_all_recommendations_returns_correct_object_when_video(self):
+        self.repository.insert_recommendation(self.recom_hp.copy())
 
-    def test_k_new_author_not_created_when_already_exists(self):
-        self.repository._run_db_command('INSERT INTO Authors (author) VALUES ("Antti Holma")')
-        author_id_antti = self.repository._read_db('SELECT id FROM Authors WHERE author = "Antti Holma"')[0][0]
-        self.assertEqual(self.repository._create_author_if_needed("Antti Holma"), author_id_antti)
+        recommendation = self.repository.find_all_recommendations()[0]
 
-    def test_l_insert_new_recommendation_successfull_and_recommendation_can_be_found(self):
-        details = {"title": "WizKid - Mighty Wine (Audio)", "author": "StarBoy TV", "type": "video", "url": "https://www.youtube.com/watch?v=_KXHTdq9URg", "description": "Wizkidin biisi", "comment": "Bängeri"}
-        self.assertEqual(self.repository.insert_recommendation(details), None)
-        
-        results = self.repository._read_db("SELECT * FROM Recommendations WHERE title = ?", ["WizKid - Mighty Wine (Audio)"])[0]
-        self.assertEqual(results["id"], 1)
-        self.assertEqual(results["title"], "WizKid - Mighty Wine (Audio)")
-        self.assertEqual(results["type"], "video")
-        self.assertEqual(results["description"], "Wizkidin biisi")
-        self.assertEqual(results["comment"], "Bängeri")
+        self.assertEqual(recommendation.title, self.recom_hp['title'])
+        self.assertEqual(recommendation.type, self.recom_hp['type'])
+        self.assertEqual(recommendation.author, self.recom_hp['author'])
+        self.assertEqual(recommendation.url, self.recom_hp['url'])
+        self.assertEqual(recommendation.description, self.recom_hp['description'])
 
-    def test_m_deleting_last_recommendation_of_author_deletes_author(self):
-        details = {"title": "WizKid - Mighty Wine (Audio)", "author": "StarBoy TV", "type": "video", "url": "https://www.youtube.com/watch?v=_KXHTdq9URg", "description": "Wizkidin biisi", "comment": "Bängeri"}
-        self.assertEqual(self.repository.insert_recommendation(details), None)
-        self.assertEqual(self.repository.delete_recommendation_by_id(1), None)
+    def test_find_all_recommendations_returns_correct_object_when_blog(self):
+        self.repository.insert_recommendation(self.recom_ds.copy())
 
-        results = self.repository._read_db("SELECT * FROM Authors")
-        self.assertEqual(len(results), 0)
+        recommendation = self.repository.find_all_recommendations()[0]
 
-    def test_n_creating_recommendation_with_unvalid_information_raises_exception(self):
-        with self.assertRaises(Exception) as error:
-            recommendation_details = {"title": "Kaverin Puolesta Kyselen", "type": "book"}
-            self.repository.insert_recommendation(recommendation_details)
+        self.assertEqual(recommendation.title, self.recom_ds['title'])
+        self.assertEqual(recommendation.type, self.recom_ds['type'])
+        self.assertEqual(recommendation.author, self.recom_ds['author'])
+        self.assertEqual(recommendation.url, self.recom_ds['url'])
 
-        with self.assertRaises(Exception) as error:
-            recommendation_details = {"title": "Kaverin Puolesta Kyselen", "author": "YLE"}
-            self.repository.insert_recommendation(recommendation_details)
+    def test_find_single_recommendation_returns_list_when_no_results(self):
+        self.assertIsInstance(self.repository.find_recommendation_by_title("Harry Potter"), list)
 
-        with self.assertRaises(Exception) as error:
-            recommendation_details = {"title": "Kaverin Puolesta Kyselen", "author": "YLE", "type": "podcast"}
-            self.repository.insert_recommendation(recommendation_details)
+    def test_find_single_recommendation_returns_empty_list_when_no_results(self):
+        self.assertEqual(len(self.repository.find_recommendation_by_title("Harry Potter")), 0)
 
-    def test_o_find_author_of_recommendation(self):
-        details = {"title": "WizKid - Mighty Wine (Audio)", "author": "StarBoy TV", "type": "video", "url": "https://www.youtube.com/watch?v=_KXHTdq9URg", "description": "Wizkidin biisi", "comment": "Bängeri"}
-        self.assertEqual(self.repository.insert_recommendation(details), None)
+    def test_find_single_recommendation_returns_recommendation_object_when_results(self):
+        self.repository.insert_recommendation(self.recom_lotr)
 
-        self.assertEqual(self.repository._find_recommendation_author(1), "StarBoy TV")
+        self.assertIsInstance(self.repository.find_recommendation_by_title("LOTR"), Recommendation)
 
+    def test_find_single_recommendation_returns_sqlite3_error_object_when_db_error(self):
+        self.repository._run_db_command("DROP TABLE Recommendations")
 
+        self.assertIsInstance(self.repository.find_recommendation_by_title("Harry Potter"), sqlite3.OperationalError)
+
+    def test_find_single_recommendation_returns_correct_object_when_book(self):
+        self.repository.insert_recommendation(self.recom_lotr.copy())
+
+        recommendation = self.repository.find_recommendation_by_title("LOTR")
+
+        self.assertEqual(recommendation.title, self.recom_lotr['title'])
+        self.assertEqual(recommendation.type, self.recom_lotr['type'])
+        self.assertEqual(recommendation.author, self.recom_lotr['author'])
+        self.assertEqual(recommendation.isbn, self.recom_lotr['isbn'])
+        self.assertEqual(recommendation.description, self.recom_lotr['description'])
+        self.assertEqual(recommendation.comment, self.recom_lotr['comment'])
+
+    def test_find_single_recommendation_returns_correct_object_when_video(self):
+        self.repository.insert_recommendation(self.recom_hp.copy())
+
+        recommendation = self.repository.find_recommendation_by_title("Harry Potter")
+
+        self.assertEqual(recommendation.title, self.recom_hp['title'])
+        self.assertEqual(recommendation.type, self.recom_hp['type'])
+        self.assertEqual(recommendation.author, self.recom_hp['author'])
+        self.assertEqual(recommendation.url, self.recom_hp['url'])
+        self.assertEqual(recommendation.description, self.recom_hp['description'])
+
+    def test_find_single_recommendation_returns_correct_object_when_blog(self):
+        self.repository.insert_recommendation(self.recom_ds.copy())
+
+        recommendation = self.repository.find_recommendation_by_title(self.recom_ds['title'])
+
+        self.assertEqual(recommendation.title, self.recom_ds['title'])
+        self.assertEqual(recommendation.type, self.recom_ds['type'])
+        self.assertEqual(recommendation.author, self.recom_ds['author'])
+        self.assertEqual(recommendation.url, self.recom_ds['url'])
+
+    def test_insert_recommendation_inserts_book_correctly(self):
+        self.repository.insert_recommendation(self.recom_lotr.copy())
+
+        recom = self.repository.find_recommendation_by_title("LOTR").__dict__
+
+        database_id = recom['db_id']
+
+        del recom['db_id']
+        del recom['url']
+
+        self.assertEqual(database_id, 1)
+
+        for key in recom:
+            self.assertEqual(recom[key], self.recom_lotr[key])
+
+    def test_insert_recommendation_inserts_video_correctly(self):
+        self.repository.insert_recommendation(self.recom_hp.copy())
+
+        recom = self.repository.find_recommendation_by_title(self.recom_hp['title']).__dict__
+        database_id = recom['db_id']
+
+        del recom['db_id']
+        del recom['isbn']
+        del recom['comment']
+
+        self.assertEqual(database_id, 1)
+
+        for key in recom:
+            self.assertEqual(recom[key], self.recom_hp[key])
+
+    def test_insert_recommendation_inserts_blog_correctly(self):
+        self.repository.insert_recommendation(self.recom_ds.copy())
+
+        recom = self.repository.find_recommendation_by_title(self.recom_ds['title']).__dict__
+        database_id = recom['db_id']
+
+        del recom['db_id']
+        del recom['isbn']
+        del recom['comment']
+        del recom['description']
+
+        self.assertEqual(database_id, 1)
+
+        for key in recom:
+            self.assertEqual(recom[key], self.recom_ds[key])
+
+    def test_insert_recommendation_returns_false_with_incorrect_insert(self):
+        recom_missingo = {
+            "title": "A Secrets of Cinnabar Island"
+        }
+
+        self.assertFalse(self.repository.insert_recommendation(recom_missingo))
+
+    def test_insert_recommendation_returns_sqlite_error_when_db_error_on_recommendations_table(self):
+        self.repository._run_db_command("DROP TABLE Recommendations")
+
+        self.assertIsInstance(self.repository.insert_recommendation(self.recom_ds), sqlite3.OperationalError)
+
+    def test_insert_recommendation_returns_sqlite_error_when_db_error_on_authors_table(self):
+        self.repository._run_db_command("DROP TABLE Authors")
+
+        self.assertIsInstance(self.repository.insert_recommendation(self.recom_ds), sqlite3.OperationalError)
+
+    def test_insert_recommendation_returns_database_id_when_success(self):
+        self.assertEqual(self.repository.insert_recommendation(self.recom_lotr), 1)
+
+    def test_insert_inserts_recommendation_when_author_already_exists(self):
+        for recommendation in self.recommendations:
+            self.repository.insert_recommendation(recommendation)
+
+        self.repository.insert_recommendation(self.recom_mc)
+
+        self.assertEqual(len(self.repository.find_all_recommendations()), 4)
+
+    def test_delete_recommendation_deletes_author_when_author_has_no_more_works_on_db(self):
+        self.repository.insert_recommendation(self.recom_mc)
+        self.repository.insert_recommendation(self.recom_ds)
+
+        self.assertEqual(len(self.repository.find_all_recommendations()), 2)
+
+        self.repository.delete_recommendation_by_id(1)
+        self.assertEqual(len(self.repository.find_all_recommendations()), 1)
+
+        query = "SELECT * FROM Authors"
+        self.assertEqual(len(self.repository._read_db(query)), 1)
+
+        self.repository.delete_recommendation_by_id(2)
+        self.assertEqual(len(self.repository._read_db(query)), 0)
+
+    def test_delete_recommendation_find_all_returns_no_results_after_delete(self):
+        self.repository.insert_recommendation(self.recom_lotr)
+        recommendation = self.repository.find_recommendation_by_title("LOTR")
+
+        self.assertEqual(len(self.repository.find_all_recommendations()), 1)
+
+        self.repository.delete_recommendation_by_id(recommendation.db_id)
+
+        self.assertEqual(len(self.repository.find_all_recommendations()), 0)
+
+    def test_delete_recommendation_deletes_one_row_from_results_correctly(self):
+        for recommendation in self.recommendations:
+            self.repository.insert_recommendation(recommendation)
+
+        self.assertEqual(len(self.repository.find_all_recommendations()), 3)
+
+        recommendation = self.repository.find_recommendation_by_title("LOTR")
+        self.repository.delete_recommendation_by_id(recommendation.db_id)
+
+        self.assertEqual(len(self.repository.find_all_recommendations()), 2)
+
+    def test_delete_recommendation_deletes_two_rows_from_results_correctly(self):
+        for recommendation in self.recommendations:
+            self.repository.insert_recommendation(recommendation)
+
+        recommendations = self.repository.find_all_recommendations()
+        self.assertEqual(len(recommendations), 3)
+
+        for i in range(0, 2):
+            self.repository.delete_recommendation_by_id(recommendations[i].db_id)
+
+        recommendations = self.repository.find_all_recommendations()
+        self.assertEqual(len(recommendations), 1)
+        self.assertEqual(recommendations[0].db_id, 3)
+
+    def test_delete_recommendation_returns_sqlite_error_on_db_error(self):
+        self.repository._run_db_command("DROP TABLE Recommendations")
+
+        self.assertIsInstance(self.repository.delete_recommendation_by_id(1), sqlite3.OperationalError)
+
+    def test_delete_recommendation_returns_database_id_on_success(self):
+        self.repository.insert_recommendation(self.recom_lotr)
+
+        recommendation = self.repository.find_recommendation_by_title("LOTR")
+        db_id = recommendation.db_id
+
+        self.assertEqual(self.repository.delete_recommendation_by_id(db_id), db_id)
+
+    def test_edit_recommendation_title_edits_recommendation_title(self):
+        self.repository.insert_recommendation(self.recom_lotr)
+        recommendation = self.repository.find_recommendation_by_title("LOTR")
+
+        self.repository.edit_recommendation_title("Lord Of The Rings", recommendation.db_id)
+
+        self.assertEqual(self.repository.find_all_recommendations()[0].title, "Lord Of The Rings")
+
+    def test_edit_recommendation_title_returns_sqlite_error_on_db_error(self):
+        self.repository._run_db_command("DROP TABLE Recommendations")
+
+        self.assertIsInstance(self.repository.edit_recommendation_title("Tohtori Sykerö", 1), sqlite3.OperationalError)
+
+    def test_edit_recommendation_title_wont_change_anything_with_incorrect_db_id(self):
+        for recommendation in self.recommendations:
+            self.repository.insert_recommendation(recommendation)
+
+        self.repository.edit_recommendation_title("Tohtori Sykerö", 666)
+
+        recommendations = [recom.title for recom in self.repository.find_all_recommendations()]
+
+        self.assertTrue("Tohtori Sykerö" not in recommendations)
+
+    def test_edit_recommendation_type_edits_recommendation_type(self):
+        self.repository.insert_recommendation(self.recom_lotr)
+        recommendation = self.repository.find_recommendation_by_title("LOTR")
+
+        self.repository.edit_recommendation_type("blog", recommendation.db_id)
+
+        self.assertEqual(self.repository.find_all_recommendations()[0].type, "blog")
+
+    def test_edit_recommendation_type_returns_sqlite_error_on_db_error(self):
+        self.repository._run_db_command("DROP TABLE Recommendations")
+
+        self.assertIsInstance(self.repository.edit_recommendation_type("video", 1), sqlite3.OperationalError)
+
+    def test_edit_recommendation_type_wont_change_anything_with_incorrect_db_id(self):
+        for recommendation in self.recommendations:
+            self.repository.insert_recommendation(recommendation)
+
+        self.repository.edit_recommendation_type("podcast", 666)
+
+        recommendations = [recom.type for recom in self.repository.find_all_recommendations()]
+
+        self.assertTrue("podcast" not in recommendations)
+
+    def test_empty_tables_empties_tables(self):
+        for recommendation in self.recommendations:
+            self.repository.insert_recommendation(recommendation)
+
+        self.assertEqual(len(self.repository.find_all_recommendations()), 3)
+
+        self.repository.empty_tables()
+
+        self.assertEqual(len(self.repository.find_all_recommendations()), 0)
