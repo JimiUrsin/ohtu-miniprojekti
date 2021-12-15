@@ -24,32 +24,60 @@ class CLI:
 
 
     def _add_new(self):
-        input_for_recommendation = self._ask_for_recommendation_inputs()
-        self.service.create_new_recommendation(input_for_recommendation[0], input_for_recommendation[1], input_for_recommendation[2], input_for_recommendation[3])
-        self.io.write(f'"{input_for_recommendation[0]}" was added!')
+        recom_details = self._ask_for_recommendation_inputs()
+        self.service.create_new_recommendation(recom_details)
+        self.io.write(f'"{recom_details["title"]}" was added!')
 
     def _ask_for_recommendation_inputs(self):
-        """Prompts user to input the title and type of a recommendations.
-        Returns a tuple with given title and recommendation type
+        """Prompts user to input the details for a Recommendation
+        The following information is asked for all types:
+        (* means this field is mandatory)
+            - Title*
+            - Author*
+            - Comment
+
+        For videos, blogs, and podcasts:
+            - URL*
+
+        For books:
+            - ISBN
+
+        For books, videos, and blogs
+            - Description
+
+        Returns:
+            A dictionary with all the mandatory fields as keys with user input as values
+            If the user does not input a specific optional field,
+            its key will not exist in the dictionary
         """
 
         while True:
             title = self.io.read('Title of the item: ')
             author = self.io.read('Author of the item: ')
             recom_type = self._input_type()
-            recom_details = self._get_recom_details(recom_type)
 
-            check =  self._confirm_user_input(title, author, recom_type, recom_details)
+            recom_details = {"title": title, "author": author, "type": recom_type}
+            self._get_recom_details(recom_details)
+
+            check =  self._confirm_user_input(recom_details)
 
             if check:
-                return (title, recom_type, author, recom_details)
+                return recom_details
 
             self.io.clear()
 
 
-    def _confirm_user_input(self, title, author, recom_type, recom_details):
-        check = self.io.read(
-            f'Is "{title}", {author}, {recom_type}, {recom_details} correct? 1: Yes, 2: No, reinput information ')
+    def _confirm_user_input(self, recom_details):
+        self.io.clear()
+
+        self.io.write("Is the following correct?\n")
+
+        for (key, value) in recom_details.items():
+            self.io.write(key.capitalize() + ": " + value)
+
+        self.io.write("\n1: Yes\n2: No, reinput information\n")
+
+        check = self.io.read("Your selection: ")
         return check == '1'
 
 
@@ -75,19 +103,26 @@ class CLI:
                 return 'blog'
             if type_input == '4':
                 return 'podcast'
-                
-    def _get_recom_details(self, recom_type):
+
+    def _get_recom_details(self, recom_details):
+        recom_type = recom_details["type"]
+
         if recom_type == 'book':
-            return "None"
-        elif recom_type == 'video':
-            url = self.io.read('URL of the video: ')
-            return url
-        elif recom_type == 'blog':
-            url = self.io.read('URL of the video: ')
-            return url
-        elif recom_type == 'podcast':
-            url = self.io.read('URL of the video: ')
-            return url
+            isbn = self.io.read("(Optional) Enter an ISBN: ")
+            if isbn:
+                recom_details["isbn"] = isbn
+        else:
+            url = self.io.read("Enter a URL: ")
+            recom_details["url"] = url
+
+        comment = self.io.read("(Optional) Enter a comment: ")
+        if comment:
+            recom_details["comment"] = comment
+
+        if recom_type != 'podcast':
+            description = self.io.read("(Optional) Enter a description: ")
+            if description:
+                recom_details["description"] = description
 
     def _browse(self):
         all_items = self.service.get_recommendations()
