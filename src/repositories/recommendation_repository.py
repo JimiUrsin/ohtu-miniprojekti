@@ -64,6 +64,7 @@ class RecommendationRepository:
             If not:         an empty list
             If db error:    sqlite3.OperationalError object
         """
+
         query = (
             "SELECT Recommendations.id, Recommendations.title, Recommendations.type, "
             "Authors.author, Recommendations.url, Recommendations.isbn, Recommendations.description, "
@@ -87,26 +88,25 @@ class RecommendationRepository:
                     results[0]['comment']
                 )
             return recommendation
-        else:
-            result = results
 
-        return result
+        return results
 
-    def _find_recommendation_author(self, recommendation_id):
-        """Finds the author of a given recommendation
+    """def _find_recommendation_author(self, recommendation_id):
+        Finds the author of a given recommendation
       
         Args:
             recommendation_id: id of recommendation
 
         Returns:
             Name of author
-        """
+        
         results = self._read_db("SELECT author_id FROM AuthorRecommendations WHERE recom_id = ?", [recommendation_id])
         author_id = results[0]["author_id"]
 
         results = self._read_db("SELECT author FROM Authors WHERE id = ?", [author_id])
         name_of_author = results[0]["author"]
-        return name_of_author
+        return name_of_author"""
+    # TÄTÄ METODIA EI VAIKUTA KÄYTETTÄVÄN AINAKAAN VIELÄ MIHINKÄÄN?
 
     def insert_recommendation(self, recom_details):
         """Inserts a recommendation to database.
@@ -131,15 +131,21 @@ class RecommendationRepository:
                 }
 
         Returns:
-            None if success, sqlite3.OperationalError object if db error
+            Database id if success, sqlite3.OperationalError object if db error
         """
-        self._check_insertion_fields(recom_details)
+
+        ###############################################################
+        check = self._check_insertion_fields(recom_details)
+
+        if check is False:
+            return False
+        ## TÄMÄ CHECK TARPEETON KUNHAN TARKISTUS ON SIIRRETTY SERVICEEN
 
         author = recom_details["author"]
         del recom_details["author"]
 
-        query_recommendation_insertion = self.create_query_for_inserting_recommendation(recom_details.keys())
-        recommendation_id = self._write_db_return_id(query_recommendation_insertion, list(recom_details.values()))
+        query_recommendation_insertion = self._create_query_for_inserting_recommendation(recom_details.keys())
+        recommendation_id = self._write_db(query_recommendation_insertion, list(recom_details.values()))
 
         if not isinstance(recommendation_id, int):
             # Database Error, return OperationalError object
@@ -151,20 +157,27 @@ class RecommendationRepository:
             # Database Error, return OperationalError object
             return author_id
 
-        return self._write_db(
+        result = self._write_db(
             "INSERT INTO AuthorRecommendations (recom_id, author_id) VALUES (?, ?)",
             [recommendation_id, author_id]
         )
 
+        return result
+
     def _check_insertion_fields(self, recom_details):
-        """Handles checking that necessary fields for creating a Recommendation are provided"""
+
+         ## TÄMÄ CHECK SIIRRETÄÄN SERVICE-LUOKAN HOMMIKSI, EI EXCEPTIONEJA SILLÄ KÄYTTÄJÄLLE EI SAA NÄKYÄ MITÄÄN TRACEBACKEJA
+
+        #Handles checking that necessary fields for creating a Recommendation are provided
         if "title" not in recom_details or "type" not in recom_details or "author" not in recom_details:
-            raise Exception("Missing required information for creating Recommendartion")
+            return False
+            #raise Exception("Missing required information for creating Recommendartion")
 
         if recom_details["type"] != "book":
             # Blog, video or podcast must have URL
             if "url" not in recom_details:
-                raise Exception("Missing required information for creating Recommendartion")
+                return False
+                #raise Exception("Missing required information for creating Recommendartion")"""
 
     def _create_author_if_needed(self, author):
         """Check if author is already present in the database. If author not present,
@@ -180,11 +193,11 @@ class RecommendationRepository:
         author_query = "SELECT id FROM Authors WHERE author = ?"
         results = self._read_db(author_query, [author])
 
-        if len(results) > 0:
+        if isinstance(results, list) and len(results) > 0:
             author_id = results[0][0]
             return author_id
 
-        author_id = self._write_db_return_id("INSERT INTO Authors (author) VALUES (?)", [author])
+        author_id = self._write_db("INSERT INTO Authors (author) VALUES (?)", [author])
 
         return author_id
 
@@ -229,6 +242,7 @@ class RecommendationRepository:
         Return:
             None if success, sqlite3.OperationalError object if db error
         """
+
         query = "UPDATE Recommendations SET type = ? WHERE id = ?"
 
         return self._write_db(query, [new_value, db_id])
@@ -238,7 +252,7 @@ class RecommendationRepository:
 
         return self._run_db_command("DELETE FROM Recommendations")
 
-    def create_query_for_inserting_recommendation(self, column_names):
+    def _create_query_for_inserting_recommendation(self, column_names):
         """A method that generates a SQL query string for inserting values to DB table
 
         Args:
@@ -248,6 +262,7 @@ class RecommendationRepository:
 
         variables = ""
         question_marks = ""
+
         for index, value in enumerate(column_names):
             variables = f"{variables}{value}"
             question_marks = f"{question_marks}?"
@@ -257,6 +272,7 @@ class RecommendationRepository:
                 question_marks = f"{question_marks}, "
 
         sql_query = f"INSERT INTO Recommendations ({variables}) VALUES ({question_marks})"
+
         return sql_query
 
     def _read_db(self, query, variables=False):
@@ -293,39 +309,18 @@ class RecommendationRepository:
             values[list]:   Query variables, e.g. a title
 
         Returns:
-            If success:     None
+            If success:     A database id of the row inserted/edited/deleted
             If db error:    sqlite3.OperationalError object
         """
 
         try:
             with self.connection:
+                cursor = self.connection.cursor()
 
-                self.connection.execute(query, values)
+                cursor.execute(query, values)
                 self.connection.commit()
 
-                return None
-
-        except self.connection.Error as error:
-            return error
-
-    def _write_db_return_id(self, query, values):
-        """A method for writing data to the database
-
-        Args:
-            query[str]:     SQL query
-            values[list]:   Query variables, e.g. a title
-
-        Returns:
-            If success:     RowId of inserted value
-            If db error:    sqlite3.OperationalError object
-        """
-
-        try:
-            with self.connection:
-                self.connection.execute(query, values)
-                self.connection.commit()
-                returned_id = self.connection.execute("SELECT last_insert_rowid()").fetchone()[0]
-                return returned_id
+                return cursor.lastrowid
 
         except self.connection.Error as error:
             return error
