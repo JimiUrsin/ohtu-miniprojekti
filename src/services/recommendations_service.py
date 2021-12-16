@@ -10,12 +10,11 @@ class RecommendationService:
         self._recommendation_repository = recommendation_repository
         self._recommendations = None
 
-    def create_new_recommendation(self, title, recom_type, author, recom_details):
+    def create_new_recommendation(self, recom_details):
         """Inserts a new recommendation into the database
 
         Args:
-            title: Title of the recommendation to be added
-            type: Type of the recommendation to be added
+            recom_details: Dictionary containing information of the recommendation to be added
 
         Returns:
             True if insertion was successful
@@ -24,8 +23,10 @@ class RecommendationService:
 
         validated = self._validate_recommendation(recom_details)
 
+        validated = True
+
         if validated:
-            value = self._recommendation_repository.insert_recommendation(title, recom_type, author, recom_details)
+            value = self._recommendation_repository.insert_recommendation(recom_details)
 
             return value is None
 
@@ -48,8 +49,9 @@ class RecommendationService:
             True if the change was successful
             False otherwise
         """
-
-        validated = self._validate_recommendation(new_title, self._recommendations[index].type)
+        
+        validated = self._validate_recommendation({'title': new_title})
+        validated = True
 
         if validated:
             value = self._recommendation_repository.edit_recommendation_title(
@@ -73,7 +75,8 @@ class RecommendationService:
             False otherwise
         """
 
-        validated = self._validate_recommendation(self._recommendations[index].title, new_type)
+        validated = self._validate_recommendation({'type': new_type})
+        validated = True
 
         if validated:
             value = self._recommendation_repository.edit_recommendation_type(
@@ -98,20 +101,20 @@ class RecommendationService:
 
         """Make sure that titles are unique and check that necessary fields for creating a Recommendation
         are provided"""
-        title = recom_details["title"]
 
-        existing = self._recommendation_repository.find_recommendation_by_title(title)
 
-        if existing["title"] == title:
-            raise UserInputError("Recommendation already exists with this title")
-
-        if "title" not in recom_details or "type" not in recom_details or "author" not in recom_details:
+        if len(recom_details["title"]) <1 or len(recom_details["type"]) < 1 or len(recom_details["author"]) < 1:
             raise UserInputError("Missing required information for creating Recommendation")
 
         if recom_details["type"] != "book":
-            if "url" not in recom_details:
+            if len(recom_details["url"]) <1:
                 raise UserInputError("Missing required information for creating Recommendation")
+        
+        title = recom_details["title"]
 
-        if len(recom_details["title"]) < 2:
-            raise UserInputError("Length of the title needs to be more than 1 character")
-  
+        existing = self._recommendation_repository.find_recommendation_by_title(title)
+        print (existing)
+
+        if existing:
+        
+            raise UserInputError("Recommendation already exists with this title")

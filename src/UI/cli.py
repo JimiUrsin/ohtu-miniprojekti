@@ -25,8 +25,12 @@ class CLI:
 
     def _add_new(self):
         recom_details = self._ask_for_recommendation_inputs()
-        self.service.create_new_recommendation(recom_details)
-        self.io.write(f'"{recom_details["title"]}" was added!')
+        try:
+            self.service.create_new_recommendation(recom_details)
+            self.io.write(f'"{recom_details["title"]}" was added!')
+
+        except Exception as error:
+            self.io.write(str(error))
 
     def _ask_for_recommendation_inputs(self):
         """Prompts user to input the details for a Recommendation
