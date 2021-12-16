@@ -32,6 +32,8 @@ class CLI:
         except Exception as error:
             self.io.write(str(error))
 
+        self.io.print_countdown(3)
+
     def _ask_for_recommendation_inputs(self):
         """Prompts user to input the details for a Recommendation
         The following information is asked for all types:
