@@ -3,7 +3,6 @@ from unittest.mock import Mock
 
 from entities.recommendation import Recommendation
 from services.recommendations_service import RecommendationService, UserInputError
-from repositories.recommendation_repository import RecommendationRepository
 
 
 class TestRecommendationService(unittest.TestCase):
@@ -12,6 +11,9 @@ class TestRecommendationService(unittest.TestCase):
         self.service = RecommendationService(self.repo_mock)
         self.repo_mock.find_recommendation_by_title.return_value = None
         self.repo_mock.insert_recommendation.return_value = None
+        mock_recommendation = Mock()
+        mock_recommendation.db_id = 1
+        self.service._recommendations = [mock_recommendation]
 
     def test_create_new_recommendation_calls_create_with_correct_parameters(self):
         action = self.service.create_new_recommendation(
@@ -75,19 +77,29 @@ class TestRecommendationService(unittest.TestCase):
             value = self.service.edit_recommendation_title("", 0)
 
     def test_edit_recommendation_type_calls_repository_correctly(self):
-        mock_recommendation = Mock()
-        mock_recommendation.db_id = 1
-        self.service._recommendations = [mock_recommendation]
         self.repo_mock.edit_recommendation_type.return_value = None
         self.service.edit_recommendation_type("podcast", 0)
         self.repo_mock.edit_recommendation_type.assert_called_with(
             "podcast", 1)
 
     def test_edit_recommendation_type_returns_true_when_success(self):
-        mock_recommendation = Mock()
-        mock_recommendation.db_id = 1
-        self.service._recommendations = [mock_recommendation]
         self.repo_mock.edit_recommendation_type.return_value = None
         value = self.service.edit_recommendation_type("podcast", 0)
 
         self.assertTrue(value)
+
+    def test_edit_recommendation_returns_true_with_valid_input(self):
+        success = self.service.edit_recommendation({'comment': 'awesome'}, 0)
+        self.assertTrue(success)
+
+    def test_edit_recommendation_returns_false_with_invalid_input(self):
+        longtext = ''
+        for _ in range(1002):
+            longtext += 'a'
+        success = self.service.edit_recommendation({'description': longtext}, 0)
+        self.assertFalse(success)
+
+    def test_error_raised_when_adding_duplicate_title(self):
+        with self.assertRaises(UserInputError):
+            self.repo_mock.find_recommendation_by_title.return_value = True
+            self.service._validate_recommendation({'title': 'Abc'})

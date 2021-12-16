@@ -131,4 +131,9 @@ class RecommendationService:
                 raise UserInputError(
                     "Recommendation already exists with this title")
 
+        for field in recom_details:
+            if len(recom_details[field]) > 1000:
+                raise UserInputError(
+                    f"{field} is too long")
+
         return True
