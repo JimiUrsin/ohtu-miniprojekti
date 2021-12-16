@@ -91,23 +91,6 @@ class RecommendationRepository:
 
         return results
 
-    """def _find_recommendation_author(self, recommendation_id):
-        Finds the author of a given recommendation
-      
-        Args:
-            recommendation_id: id of recommendation
-
-        Returns:
-            Name of author
-        
-        results = self._read_db("SELECT author_id FROM AuthorRecommendations WHERE recom_id = ?", [recommendation_id])
-        author_id = results[0]["author_id"]
-
-        results = self._read_db("SELECT author FROM Authors WHERE id = ?", [author_id])
-        name_of_author = results[0]["author"]
-        return name_of_author"""
-    # TÄTÄ METODIA EI VAIKUTA KÄYTETTÄVÄN AINAKAAN VIELÄ MIHINKÄÄN?
-
     def insert_recommendation(self, recom_details):
         """Inserts a recommendation to database.
             This method checks that a Recommendation has the required values and
@@ -193,36 +176,6 @@ class RecommendationRepository:
 
         query_delete_recommendation = "DELETE FROM Recommendations WHERE id = ?"
         return self._write_db(query_delete_recommendation, [db_id])
-
-    def edit_recommendation_title(self, new_value, db_id):
-        """Edit recommendation title in database
-
-        Args:
-            new_value: new title from the user
-            db_id: An id of the recommendation
-
-        Return:
-            None if success, sqlite3.OperationalError object if db error
-        """
-
-        query = "UPDATE Recommendations SET title = ? WHERE id = ?"
-
-        return self._write_db(query, [new_value, db_id])
-
-    def edit_recommendation_type(self, new_value, db_id):
-        """Edit recommendation type in database
-
-        Args:
-            new_value: new title from the user
-            db_id: An id of the recommendation
-
-        Return:
-            None if success, sqlite3.OperationalError object if db error
-        """
-
-        query = "UPDATE Recommendations SET type = ? WHERE id = ?"
-
-        return self._write_db(query, [new_value, db_id])
 
     def edit_recommendation(self, recom_details, db_id):
         """Edits a recommendation to match new values
