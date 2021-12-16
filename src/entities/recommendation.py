@@ -25,7 +25,7 @@ class Recommendation:
         elif self.isbn:
             recom_string += f', ISBN: {self.isbn}'
         if self.description:
-            recom_string += f', Decription: {self.description}'
+            recom_string += f', Description: {self.description}'
         if self.comment:
             recom_string += f', Comment: {self.comment}'
         return recom_string
