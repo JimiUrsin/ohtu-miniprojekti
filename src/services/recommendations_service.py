@@ -87,6 +87,17 @@ class RecommendationService:
             return value is None
 
         return False
+    
+    def edit_recommendation(self, recom_details, index):
+        #validated = self._validate_recommendation(recom_details)
+        validated = True
+
+        if not validated:
+            return False
+        
+        db_id = self._recommendations[index].db_id
+        self._recommendation_repository.edit_recommendation(recom_details, db_id)
+        return True
 
     def delete_recommendation(self, index):
         """Deletes a recommendation based on its index, returns True if successful"""

@@ -224,6 +224,25 @@ class RecommendationRepository:
         query = "UPDATE Recommendations SET type = ? WHERE id = ?"
 
         return self._write_db(query, [new_value, db_id])
+    
+    def edit_recommendation(self, recom_details, db_id):
+        """Sets the designated recommendation's fields to the new values given"""
+
+        query = "UPDATE Recommendations SET " \
+                "title = ?, type = ?, url = ?, isbn = ?, description = ?, comment = ? " \
+                "WHERE id = ?"
+        
+        values = [
+            recom_details["title"],
+            recom_details["type"],
+            recom_details.get("url"),
+            recom_details.get("isbn"),
+            recom_details.get("description"),
+            recom_details.get("comment"),
+            db_id
+        ]
+
+        self._write_db(query, values)
 
     def empty_tables(self):
         """Empties whole Recommendations table from database"""
