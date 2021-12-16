@@ -49,7 +49,7 @@ class RecommendationService:
             True if the change was successful
             False otherwise
         """
-        
+
         validated = self._validate_recommendation({'title': new_title})
         validated = True
 
@@ -87,7 +87,7 @@ class RecommendationService:
             return value is None
 
         return False
-    
+
     def edit_recommendation(self, recom_details, index):
         """Edits a recommendation to match new values
         Checks to see if the new values given are valid
@@ -98,7 +98,7 @@ class RecommendationService:
 
         Returns:
             True if the edit was successful
-            False otherwise        
+            False otherwise
         """
         try:
             self._validate_recommendation(recom_details)
@@ -130,12 +130,12 @@ class RecommendationService:
         if recom_details["type"] != "book":
             if len(recom_details["url"]) <1:
                 raise UserInputError("Missing required information for creating Recommendation")
-        
+
         title = recom_details["title"]
 
         existing = self._recommendation_repository.find_recommendation_by_title(title)
         print (existing)
 
         if existing:
-        
+
             raise UserInputError("Recommendation already exists with this title")

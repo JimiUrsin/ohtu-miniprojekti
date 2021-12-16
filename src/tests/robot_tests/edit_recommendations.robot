@@ -1,6 +1,6 @@
 *** Settings ***
 Resource  resource.robot
-Test Setup  Clear Database
+Test Setup  Setup Database
 
 *** Test Cases ***
 Recommendation Can Be Deleted

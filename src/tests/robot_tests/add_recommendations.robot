@@ -1,6 +1,6 @@
 *** Settings ***
 Resource  resource.robot
-Test Setup  Clear Database
+Test Setup  Setup Database
 
 *** Test Cases ***
 Add A Book Recommendation With A Description, Isbn And Comment To The Database 
