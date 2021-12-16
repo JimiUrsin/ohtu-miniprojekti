@@ -121,23 +121,22 @@ class RecommendationService:
     def _validate_recommendation(self, recom_details):
         """Make sure that titles are unique and check that necessary fields for creating a Recommendation
         are provided"""
+        for field in ('title', 'type', 'author'):
+            if field in recom_details and len(recom_details[field]) < 1:
+                raise UserInputError(
+                    "Missing required information for creating Recommendation")
 
-        if len(recom_details["title"]) < 1 or len(recom_details["type"]) < 1 or len(recom_details["author"]) < 1:
-            raise UserInputError(
-                "Missing required information for creating Recommendation")
-
-        if recom_details["type"] != "book":
+        if 'type' in recom_details and 'url' in recom_details and recom_details["type"] != "book":
             if len(recom_details["url"]) < 1:
                 raise UserInputError(
                     "Missing required information for creating Recommendation")
 
-        title = recom_details["title"]
-
-        existing = self._recommendation_repository.find_recommendation_by_title(
-            title)
-
-        if existing:
-            raise UserInputError(
-                "Recommendation already exists with this title")
+        if 'title' in recom_details:
+            title = recom_details["title"]
+            existing = self._recommendation_repository.find_recommendation_by_title(
+                title)
+            if existing:
+                raise UserInputError(
+                    "Recommendation already exists with this title")
 
         return True
