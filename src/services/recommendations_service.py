@@ -89,12 +89,22 @@ class RecommendationService:
         return False
     
     def edit_recommendation(self, recom_details, index):
-        #validated = self._validate_recommendation(recom_details)
-        validated = True
+        """Edits a recommendation to match new values
+        Checks to see if the new values given are valid
 
-        if not validated:
+        Args:
+            recom_details: A dictionary with all the attributes required for the recommendation type
+            index: Recommendation list index of the recommendation to be edited
+
+        Returns:
+            True if the edit was successful
+            False otherwise        
+        """
+        try:
+            self._validate_recommendation(recom_details)
+        except UserInputError:
             return False
-        
+
         db_id = self._recommendations[index].db_id
         self._recommendation_repository.edit_recommendation(recom_details, db_id)
         return True

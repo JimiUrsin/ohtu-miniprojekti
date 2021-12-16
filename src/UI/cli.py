@@ -183,10 +183,10 @@ class CLI:
             if action == '1':
                 recom_details = self._ask_for_recommendation_inputs()
 
-                edit_success = self.service.edit_recommendation(recom_details)
+                edit_success = self.service.edit_recommendation(recom_details, recommendation_index)
 
                 if not edit_success:
-                    self.io.write("Editing Recommendation was not successful")
+                    self.io.write("Editing Recommendation was unsuccessful\n\n")
                 else:
                     self.io.write("Recommendation edited successfully!\n\n")
                 break

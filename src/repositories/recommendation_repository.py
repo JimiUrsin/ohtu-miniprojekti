@@ -224,14 +224,23 @@ class RecommendationRepository:
         query = "UPDATE Recommendations SET type = ? WHERE id = ?"
 
         return self._write_db(query, [new_value, db_id])
-    
+
     def edit_recommendation(self, recom_details, db_id):
-        """Sets the designated recommendation's fields to the new values given"""
+        """Edits a recommendation to match new values
+
+        Args:
+            recom_details: A dictionary with all the attributes required for the recommendation type
+            db_id: Database ID of the Recommendation to be changed
+
+        Returns:
+            True if the edit was successful
+            False otherwise
+        """
 
         query = "UPDATE Recommendations SET " \
                 "title = ?, type = ?, url = ?, isbn = ?, description = ?, comment = ? " \
-                "WHERE id = ?"
-        
+                "WHERE id = ?;"
+
         values = [
             recom_details["title"],
             recom_details["type"],
@@ -242,7 +251,22 @@ class RecommendationRepository:
             db_id
         ]
 
-        self._write_db(query, values)
+        status = self._write_db(query, values)
+        if not isinstance(status, int):
+            return False
+
+        query = "DELETE FROM AuthorRecommendations WHERE recom_id = ?;"
+
+        status = self._write_db(query, [db_id])
+        if not isinstance(status, int):
+            return False
+
+        author_id = self._create_author_if_needed(recom_details["author"])
+
+        query = "INSERT INTO AuthorRecommendations (recom_id, author_id) VALUES (?, ?);"
+
+        status = self._write_db(query, [db_id, author_id])
+        return isinstance(status, int)
 
     def empty_tables(self):
         """Empties whole Recommendations table from database"""
