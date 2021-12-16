@@ -1,3 +1,6 @@
+from entities.recommendation import Recommendation
+
+
 class CLI:
     """Contains all command line interface functionality"""
 
@@ -28,11 +31,14 @@ class CLI:
         try:
             self.service.create_new_recommendation(recom_details)
             self.io.write(f'"{recom_details["title"]}" was added!')
+            self.io.print_countdown(3)
+
 
         except Exception as error:
             self.io.write(str(error))
+            self.io.print_countdown(3)
 
-    def _ask_for_recommendation_inputs(self):
+    def _ask_for_recommendation_inputs(self, recommendation=None, edit=False):
         """Prompts user to input the details for a Recommendation
         The following information is asked for all types:
         (* means this field is mandatory)
@@ -56,12 +62,32 @@ class CLI:
         """
 
         while True:
-            title = self.io.read('Title of the item: ')
-            author = self.io.read('Author of the item: ')
+            if edit:
+                ask_from_user = self.io.read(f'Current title of the item:  {recommendation.title}, edit = 1: ')
+                if ask_from_user == "1":
+                    title = self.io.read('New title of the item: ')
+                else:
+                    title = recommendation.title
+            else:
+                title = self.io.read('Title of the item: ')
+
+            if edit:
+                ask_from_user = self.io.read(f'Current author of the item: {recommendation.author}, edit = 1: ')
+                if ask_from_user == "1":
+                    author = self.io.read('New author of the item: ')
+                else:
+                    author = recommendation.author
+            else:
+                author = self.io.read('Author of the item: ')
+
             recom_type = self._input_type()
 
             recom_details = {"title": title, "author": author, "type": recom_type}
-            self._get_recom_details(recom_details)
+            
+            if edit:
+                self._get_recom_details(recom_details, recommendation, True)
+            else:
+                self._get_recom_details(recom_details)
 
             check =  self._confirm_user_input(recom_details)
 
@@ -69,7 +95,6 @@ class CLI:
                 return recom_details
 
             self.io.clear()
-
 
     def _confirm_user_input(self, recom_details):
         self.io.clear()
@@ -108,25 +133,60 @@ class CLI:
             if type_input == '4':
                 return 'podcast'
 
-    def _get_recom_details(self, recom_details):
+    def _get_recom_details(self, recom_details, recommendation=None, edit=False):
         recom_type = recom_details["type"]
 
-        if recom_type == 'book':
-            isbn = self.io.read("(Optional) Enter an ISBN: ")
-            if isbn:
-                recom_details["isbn"] = isbn
+        if recom_type == "book":
+            if edit:
+                ask_from_user = self.io.read(f"Current ISBN: {recommendation.isbn}, edit = 1: ")
+                if ask_from_user == "1":
+                    isbn = self.io.read("(Optional) Enter new ISBN: ")
+                    recom_details["isbn"] = isbn
+                else:
+                    isbn = recommendation.isbn
+      
+            else:
+                isbn = self.io.read("(Optional) Enter an ISBN: ")
+                if isbn:
+                    recom_details["isbn"] = isbn
         else:
-            url = self.io.read("Enter a URL: ")
-            recom_details["url"] = url
+            if edit:
+                ask_from_user = self.io.read(f"Current URL: {recommendation.url}, edit = 1: ")
+                if ask_from_user == "1":
+                    url = self.io.read("Enter new URL: ")
+                    recom_details["url"] = url
+                else:
+                    url = recommendation.url  
+            
+            else:
+                url = self.io.read("Enter a URL: ")
+    
+                recom_details["url"] = url
 
-        comment = self.io.read("(Optional) Enter a comment: ")
-        if comment:
-            recom_details["comment"] = comment
+        if edit:
+            ask_from_user = self.io.read(f"Current comment: {recommendation.comment}, edit = 1: ")
+            if ask_from_user == "1":
+                comment = self.io.read(f"New comment: ")
+                recom_details["comment"] = comment
+            else:
+                comment = recommendation.comment
+        else:
+            comment = self.io.read("(Optional) Enter a comment: ")
+            if comment:
+                recom_details["comment"] = comment
 
         if recom_type != 'podcast':
-            description = self.io.read("(Optional) Enter a description: ")
-            if description:
-                recom_details["description"] = description
+            if edit:
+                ask_from_user = self.io.read(f"Your current description: {recommendation.description}, edit = 1: ")
+                if ask_from_user == "1":
+                    description = self.io.read("(Optional) Enter new description: ")
+                    recom_details["description"] = description
+                else:
+                    description = recommendation.description
+            else:
+                description = self.io.read("(Optional) Enter a description: ")
+                if description:
+                    recom_details["description"] = description
 
     def _browse(self):
         all_items = self.service.get_recommendations()
@@ -181,24 +241,26 @@ class CLI:
                 break
 
             if action == '1':
-                recom_details = self._ask_for_recommendation_inputs()
+                recom_details = self._ask_for_recommendation_inputs(recommendation, True)
 
-                edit_success = self.service.edit_recommendation(recom_details, recommendation_index)
-
-                if not edit_success:
-                    self.io.write("Editing Recommendation was unsuccessful\n\n")
-                else:
+                try:
+                    self.service.edit_recommendation(recom_details, recommendation_index)
                     self.io.write("Recommendation edited successfully!\n\n")
+
+                except Exception as error:
+                    self.io.write(str(error))
+                    self.io.print_countdown(3)
+                
                 break
 
             if action == '2':
                 confirmation = self.io.read("Confirm deletition. 1: Delete, 0: Cancel ")
                 if confirmation == '1':
-                    success_deletition = self.service.delete_recommendation(recommendation_index)
-                    if not success_deletition:
-                        self.io.write("Deleting Recommendation was not successful")
-                    else:
+                    try:
+                        self.service.delete_recommendation(recommendation_index)
                         self.io.write("Recommendation deleted successfully!\n\n")
+                    except Exception as error:
+                        self.io.write(str(error))
                     break
 
     def _print_recommendations(self, recommendations, display_index = False):

@@ -192,7 +192,6 @@ class RecommendationRepository:
         """
 
         query_delete_recommendation = "DELETE FROM Recommendations WHERE id = ?"
-
         return self._write_db(query_delete_recommendation, [db_id])
 
     def edit_recommendation_title(self, new_value, db_id):

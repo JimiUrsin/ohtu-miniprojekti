@@ -49,7 +49,7 @@ class RecommendationService:
             True if the change was successful
             False otherwise
         """
-        
+
         validated = self._validate_recommendation({'title': new_title})
         validated = True
 
@@ -87,7 +87,7 @@ class RecommendationService:
             return value is None
 
         return False
-    
+
     def edit_recommendation(self, recom_details, index):
         """Edits a recommendation to match new values
         Checks to see if the new values given are valid
@@ -98,16 +98,17 @@ class RecommendationService:
 
         Returns:
             True if the edit was successful
-            False otherwise        
+            False otherwise
         """
-        try:
-            self._validate_recommendation(recom_details)
-        except UserInputError:
-            return False
 
-        db_id = self._recommendations[index].db_id
-        self._recommendation_repository.edit_recommendation(recom_details, db_id)
-        return True
+        validated = self._validate_edited_recommendation(recom_details)
+
+        validated = True
+
+        if validated:
+            db_id = self._recommendations[index].db_id
+            self._recommendation_repository.edit_recommendation(recom_details, db_id)
+            return True
 
     def delete_recommendation(self, index):
         """Deletes a recommendation based on its index, returns True if successful"""
@@ -115,8 +116,20 @@ class RecommendationService:
         value = self._recommendation_repository.delete_recommendation_by_id(
             self._recommendations[index].db_id
         )
+        if value is None:
+            raise UserInputError("Deleting Recommendation was not successful")
+        value is int
 
-        return value is None
+    def _validate_edited_recommendation(self, recom_details):
+
+
+        if len(recom_details["title"]) <1 or len(recom_details["type"]) < 1 or len(recom_details["author"]) < 1:
+            raise UserInputError("Missing required information for creating Recommendation")
+
+        if recom_details["type"] != "book":
+            if len(recom_details["url"]) <1:
+                raise UserInputError("Missing required information for creating Recommendation")
+
 
     def _validate_recommendation(self, recom_details):
 
@@ -130,12 +143,11 @@ class RecommendationService:
         if recom_details["type"] != "book":
             if len(recom_details["url"]) <1:
                 raise UserInputError("Missing required information for creating Recommendation")
-        
+
         title = recom_details["title"]
 
         existing = self._recommendation_repository.find_recommendation_by_title(title)
-        print (existing)
 
         if existing:
-        
+
             raise UserInputError("Recommendation already exists with this title")
