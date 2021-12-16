@@ -178,36 +178,6 @@ class RecommendationRepository:
 
         return self._write_db(query_delete_recommendation, [db_id])
 
-    def edit_recommendation_title(self, new_value, db_id):
-        """Edit recommendation title in database
-
-        Args:
-            new_value: new title from the user
-            db_id: An id of the recommendation
-
-        Return:
-            None if success, sqlite3.OperationalError object if db error
-        """
-
-        query = "UPDATE Recommendations SET title = ? WHERE id = ?"
-
-        return self._write_db(query, [new_value, db_id])
-
-    def edit_recommendation_type(self, new_value, db_id):
-        """Edit recommendation type in database
-
-        Args:
-            new_value: new title from the user
-            db_id: An id of the recommendation
-
-        Return:
-            None if success, sqlite3.OperationalError object if db error
-        """
-
-        query = "UPDATE Recommendations SET type = ? WHERE id = ?"
-
-        return self._write_db(query, [new_value, db_id])
-
     def edit_recommendation(self, recom_details, db_id):
         """Edits a recommendation to match new values
 
