@@ -23,7 +23,28 @@ Select Deletition In Edit Menu
 Select Edit This Recommendation In Edit Menu
     Input  1
 
-Input Recommendation Information
-    [Arguments]  ${title}  ${recom_type}
+Input Book Information
+    [Arguments]  ${title}  ${author}  ${recom_type}  ${isbn}  ${comment}  ${description}
     Input  ${title}
+    Input  ${author}
     Input  ${recom_type}
+	Input  ${isbn}
+	Input  ${comment}
+	Input  ${description}
+	
+Input Video Or Blog Information
+    [Arguments]  ${title}  ${author}  ${recom_type}  ${url}  ${comment}  ${description}
+    Input  ${title}
+    Input  ${author}
+    Input  ${recom_type}
+	Input  ${url}
+	Input  ${comment}
+	Input  ${description}
+	
+Input Podcast Information
+    [Arguments]  ${title}  ${author}  ${recom_type}  ${url}  ${comment}
+    Input  ${title}
+    Input  ${author}
+    Input  ${recom_type}
+	Input  ${url}
+	Input  ${comment}

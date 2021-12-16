@@ -26,8 +26,9 @@ class RobotLibrary:
         if output in self._io.outputs:
             raise AssertionError(f"Specified output ({output}) was found in output list. Outputs were {self._io.outputs}")
 
-    def insert_a_new_recommendation(self, title, recom_type):
-        self._service.create_new_recommendation(title, recom_type)
+    def insert_a_new_recommendation(self, title, author, recom_type):
+        recom_details = {"title": title, "author": author, "type": recom_type}
+        self._service.create_new_recommendation(recom_details)
 
     def clear_database(self):
         self._repository.empty_tables()
