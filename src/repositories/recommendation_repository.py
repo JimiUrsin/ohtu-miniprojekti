@@ -91,23 +91,6 @@ class RecommendationRepository:
 
         return results
 
-    """def _find_recommendation_author(self, recommendation_id):
-        Finds the author of a given recommendation
-      
-        Args:
-            recommendation_id: id of recommendation
-
-        Returns:
-            Name of author
-        
-        results = self._read_db("SELECT author_id FROM AuthorRecommendations WHERE recom_id = ?", [recommendation_id])
-        author_id = results[0]["author_id"]
-
-        results = self._read_db("SELECT author FROM Authors WHERE id = ?", [author_id])
-        name_of_author = results[0]["author"]
-        return name_of_author"""
-    # TÄTÄ METODIA EI VAIKUTA KÄYTETTÄVÄN AINAKAAN VIELÄ MIHINKÄÄN?
-
     def insert_recommendation(self, recom_details):
         """Inserts a recommendation to database.
             This method checks that a Recommendation has the required values and
