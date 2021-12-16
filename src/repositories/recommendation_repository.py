@@ -24,11 +24,30 @@ class RecommendationRepository:
             If db error:    sqlite3.OperationalError object
         """
 
-        query = "SELECT * FROM Recommendations"
+        query = (
+            "SELECT Recommendations.id, Recommendations.title, Recommendations.type, "
+            "Authors.author, Recommendations.url, Recommendations.isbn, Recommendations.description, "
+            "Recommendations.comment "
+            "FROM Recommendations, AuthorRecommendations, Authors "
+            "WHERE Recommendations.id = AuthorRecommendations.recom_id "
+            "AND Authors.id = AuthorRecommendations.author_id"
+        )
         results = self._read_db(query)
 
         if isinstance(results, list):
-            recommendations = [Recommendation(result['title'], result['type'], result['id']) for result in results]
+            recommendations = []
+            for result in results:
+                recommendation = Recommendation(
+                    result['title'],
+                    result['type'],
+                    result['id'],
+                    result['author'],
+                    result['url'],
+                    result['isbn'],
+                    result['description'],
+                    result['comment']
+                )
+                recommendations.append(recommendation)
         else:
             recommendations = results
 
@@ -46,34 +65,108 @@ class RecommendationRepository:
             If db error:    sqlite3.OperationalError object
         """
 
-        query = "SELECT * FROM Recommendations WHERE title = ?"
+        query = (
+            "SELECT Recommendations.id, Recommendations.title, Recommendations.type, "
+            "Authors.author, Recommendations.url, Recommendations.isbn, Recommendations.description, "
+            "Recommendations.comment "
+            "FROM Recommendations, AuthorRecommendations, Authors "
+            "WHERE title = ? "
+            "AND Recommendations.id = AuthorRecommendations.recom_id "
+            "AND Authors.id = AuthorRecommendations.author_id"
+        )
         results = self._read_db(query, [title])
 
         if isinstance(results, list) and len(results) > 0:
-            result = Recommendation(results[0]['title'], results[0]['type'], results[0]['id'])
-            print(result)
-        else:
-            result = results
+            recommendation = Recommendation(
+                    results[0]['title'],
+                    results[0]['type'],
+                    results[0]['id'],
+                    results[0]['author'],
+                    results[0]['url'],
+                    results[0]['isbn'],
+                    results[0]['description'],
+                    results[0]['comment']
+                )
+            return recommendation
+
+        return results
+
+    def insert_recommendation(self, recom_details):
+        """Inserts a recommendation to database.
+            This method checks that a Recommendation has the required values and
+            raises an Exception if the fields are not found. The requirements are
+            as follows (required fields marked with *):
+            - Book: Title*, Author*, ISBN, Description, Comment
+            - Video: Title*, Author*, URL*, Description, Comment
+            - Blog: Title*, Author*, URL*, Description, Comment
+            - Podcast: Title*, Author*, URL*, Description, Comment
+
+        Args:
+            author: Name of author
+            recom_details: A dictionary containing the details of given recommendation. Example:
+                {
+                    "title": "My Day",
+                    "author": "Sita Salminen",
+                    "type": "video",
+                    "url": "https://youtube.com",
+                    "description": "Video Sitan päivästä",
+                    "comment": "Ihan hyvä video"
+                }
+
+        Returns:
+            Database id if success, sqlite3.OperationalError object if db error
+        """
+
+        author = recom_details["author"]
+        del recom_details["author"]
+
+        query_recommendation_insertion = self._create_query_for_inserting_recommendation(recom_details.keys())
+        recommendation_id = self._write_db(query_recommendation_insertion, list(recom_details.values()))
+
+        if not isinstance(recommendation_id, int):
+            # Database Error, return OperationalError object
+            return recommendation_id
+
+        author_id = self._create_author_if_needed(author)
+
+        if not isinstance(author_id, int):
+            # Database Error, return OperationalError object
+            return author_id
+
+        result = self._write_db(
+            "INSERT INTO AuthorRecommendations (recom_id, author_id) VALUES (?, ?)",
+            [recommendation_id, author_id]
+        )
 
         return result
 
-    def insert_recommendation(self, title, recom_type):
-        """Inserts a recommendation to database with title and recommendation type
+    def _create_author_if_needed(self, author):
+        """Check if author is already present in the database. If author not present,
+            creates an entry of it in Authors table.
 
         Args:
-            title: A title of recommendation
+            author: Name of the author
 
         Returns:
-            None if success, sqlite3.OperationalError object if db error
+            Id of author
         """
 
-        query = "INSERT INTO Recommendations (title, type) VALUES (?,?)"
+        author_query = "SELECT id FROM Authors WHERE author = ?"
+        results = self._read_db(author_query, [author])
 
-        return self._write_db(query, [title, recom_type])
+        if isinstance(results, list) and len(results) > 0:
+            author_id = results[0][0]
+            return author_id
+
+        author_id = self._write_db("INSERT INTO Authors (author) VALUES (?)", [author])
+
+        return author_id
 
     def delete_recommendation_by_id(self, db_id):
-        """Delete a recommendation by title from database
-
+        """Delete recommendation by its id. Also removes connection to
+            its Author (deleted by SQL trigger DeleteAuthorConnectionWithRecommendation).
+            If last recommendation associated with an author is deleted,
+            then the author is deleted aswell (SQL Trigger DeleteAuthorWithLastRecommendation)
         Args:
             db_id: An id of the recommendation
 
@@ -81,43 +174,80 @@ class RecommendationRepository:
             None if success, sqlite3.OperationalError object if db error
         """
 
-        query = "DELETE FROM Recommendations WHERE id = ?"
+        query_delete_recommendation = "DELETE FROM Recommendations WHERE id = ?"
 
-        return self._write_db(query, [db_id])
+        return self._write_db(query_delete_recommendation, [db_id])
 
-    def edit_recommendation_title(self, new_value, db_id):
-        """Edit recommendation title in database
-
-        Args:
-            new_value: new title from the user
-            db_id: An id of the recommendation
-
-        Return:
-            None if success, sqlite3.OperationalError object if db error
-        """
-
-        query = "UPDATE Recommendations SET title = ? WHERE id = ?"
-
-        return self._write_db(query, [new_value, db_id])
-
-    def edit_recommendation_type(self, new_value, db_id):
-        """Edit recommendation type in database
+    def edit_recommendation(self, recom_details, db_id):
+        """Edits a recommendation to match new values
 
         Args:
-            new_value: new title from the user
-            db_id: An id of the recommendation
+            recom_details: A dictionary with all the attributes required for the recommendation type
+            db_id: Database ID of the Recommendation to be changed
 
-        Return:
-            None if success, sqlite3.OperationalError object if db error
+        Returns:
+            True if the edit was successful
+            False otherwise
         """
-        query = "UPDATE Recommendations SET type = ? WHERE id = ?"
 
-        return self._write_db(query, [new_value, db_id])
+        query = "UPDATE Recommendations SET " \
+                "title = ?, type = ?, url = ?, isbn = ?, description = ?, comment = ? " \
+                "WHERE id = ?;"
+
+        values = [
+            recom_details["title"],
+            recom_details["type"],
+            recom_details.get("url"),
+            recom_details.get("isbn"),
+            recom_details.get("description"),
+            recom_details.get("comment"),
+            db_id
+        ]
+
+        status = self._write_db(query, values)
+        if not isinstance(status, int):
+            return False
+
+        query = "DELETE FROM AuthorRecommendations WHERE recom_id = ?;"
+
+        status = self._write_db(query, [db_id])
+        if not isinstance(status, int):
+            return False
+
+        author_id = self._create_author_if_needed(recom_details["author"])
+
+        query = "INSERT INTO AuthorRecommendations (recom_id, author_id) VALUES (?, ?);"
+
+        status = self._write_db(query, [db_id, author_id])
+        return isinstance(status, int)
 
     def empty_tables(self):
         """Empties whole Recommendations table from database"""
 
         return self._run_db_command("DELETE FROM Recommendations")
+
+    def _create_query_for_inserting_recommendation(self, column_names):
+        """A method that generates a SQL query string for inserting values to DB table
+
+        Args:
+            column_names[list]: List of names of columns, where data will be inserted
+                with the query
+        """
+
+        variables = ""
+        question_marks = ""
+
+        for index, value in enumerate(column_names):
+            variables = f"{variables}{value}"
+            question_marks = f"{question_marks}?"
+
+            if index < len(column_names) - 1:
+                variables = f"{variables}, "
+                question_marks = f"{question_marks}, "
+
+        sql_query = f"INSERT INTO Recommendations ({variables}) VALUES ({question_marks})"
+
+        return sql_query
 
     def _read_db(self, query, variables=False):
         """A method for fetching data by queries
@@ -153,17 +283,18 @@ class RecommendationRepository:
             values[list]:   Query variables, e.g. a title
 
         Returns:
-            If success:     None
+            If success:     A database id of the row inserted/edited/deleted
             If db error:    sqlite3.OperationalError object
         """
 
         try:
             with self.connection:
+                cursor = self.connection.cursor()
 
-                self.connection.execute(query, values)
+                cursor.execute(query, values)
                 self.connection.commit()
 
-                return None
+                return cursor.lastrowid
 
         except self.connection.Error as error:
             return error
@@ -189,4 +320,3 @@ class RecommendationRepository:
 
         except self.connection.Error as error:
             return error
-
