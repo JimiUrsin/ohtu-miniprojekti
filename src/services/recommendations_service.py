@@ -1,5 +1,8 @@
 from repositories.recommendation_repository import RecommendationRepository as default_repo
 
+class UserInputError(Exception):
+    pass
+
 class RecommendationService:
     """Provides functionality for safely communicating with the database repository"""
 
@@ -19,7 +22,7 @@ class RecommendationService:
             False otherwise
         """
 
-        validated = self._validate_recommendation(title, recom_type)
+        validated = self._validate_recommendation(recom_details)
 
         if validated:
             value = self._recommendation_repository.insert_recommendation(title, recom_type, author, recom_details)
@@ -91,12 +94,24 @@ class RecommendationService:
 
         return value is None
 
-    def _validate_recommendation(self, title, recom_type):
-        valid_types = ["book", "video", "blog", "podcast"]
+    def _validate_recommendation(self, recom_details):
 
-        if len(title) < 2:
-            return False
-        if recom_type.lower() not in valid_types:
-            return False
+        """Make sure that titles are unique and check that necessary fields for creating a Recommendation
+        are provided"""
+        title = recom_details["title"]
 
-        return True
+        existing = self._recommendation_repository.find_recommendation_by_title(title)
+
+        if existing["title"] == title:
+            raise UserInputError("Recommendation already exists with this title")
+
+        if "title" not in recom_details or "type" not in recom_details or "author" not in recom_details:
+            raise UserInputError("Missing required information for creating Recommendation")
+
+        if recom_details["type"] != "book":
+            if "url" not in recom_details:
+                raise UserInputError("Missing required information for creating Recommendation")
+
+        if len(recom_details["title"]) < 2:
+            raise UserInputError("Length of the title needs to be more than 1 character")
+  

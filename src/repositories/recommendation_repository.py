@@ -134,13 +134,6 @@ class RecommendationRepository:
             Database id if success, sqlite3.OperationalError object if db error
         """
 
-        ###############################################################
-        check = self._check_insertion_fields(recom_details)
-
-        if check is False:
-            return False
-        ## TÄMÄ CHECK TARPEETON KUNHAN TARKISTUS ON SIIRRETTY SERVICEEN
-
         author = recom_details["author"]
         del recom_details["author"]
 
@@ -163,21 +156,6 @@ class RecommendationRepository:
         )
 
         return result
-
-    def _check_insertion_fields(self, recom_details):
-
-         ## TÄMÄ CHECK SIIRRETÄÄN SERVICE-LUOKAN HOMMIKSI, EI EXCEPTIONEJA SILLÄ KÄYTTÄJÄLLE EI SAA NÄKYÄ MITÄÄN TRACEBACKEJA
-
-        #Handles checking that necessary fields for creating a Recommendation are provided
-        if "title" not in recom_details or "type" not in recom_details or "author" not in recom_details:
-            return False
-            #raise Exception("Missing required information for creating Recommendartion")
-
-        if recom_details["type"] != "book":
-            # Blog, video or podcast must have URL
-            if "url" not in recom_details:
-                return False
-                #raise Exception("Missing required information for creating Recommendartion")"""
 
     def _create_author_if_needed(self, author):
         """Check if author is already present in the database. If author not present,
