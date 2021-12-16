@@ -44,6 +44,15 @@ class TestRecommendationRepository(unittest.TestCase):
             "url": "https://google.fi"
         }
 
+        self.new_values = {
+            "title": "Taikuri Luttinen",
+            "author": "Luikuri Tattinen",
+            "type": "video",
+            "url": "https://www.taikuri-luttinen.fi/",
+            "description": "Taikuri Luttinen does some sick tricks",
+            "comment": "I wanna learn some magic too"
+        }
+
         self.recommendations = [self.recom_lotr, self.recom_hp, self.recom_ds]
 
     def test_find_all_recommendations_returns_empty_list_when_empty(self):
@@ -198,13 +207,6 @@ class TestRecommendationRepository(unittest.TestCase):
         for key in recom:
             self.assertEqual(recom[key], self.recom_ds[key])
 
-    def test_insert_recommendation_returns_false_with_incorrect_insert(self):
-        recom_missingo = {
-            "title": "A Secrets of Cinnabar Island"
-        }
-
-        self.assertFalse(self.repository.insert_recommendation(recom_missingo))
-
     def test_insert_recommendation_returns_sqlite_error_when_db_error_on_recommendations_table(self):
         self.repository._run_db_command("DROP TABLE Recommendations")
 
@@ -289,51 +291,62 @@ class TestRecommendationRepository(unittest.TestCase):
 
         self.assertEqual(self.repository.delete_recommendation_by_id(db_id), db_id)
 
-    def test_edit_recommendation_title_edits_recommendation_title(self):
-        self.repository.insert_recommendation(self.recom_lotr)
-        recommendation = self.repository.find_recommendation_by_title("LOTR")
+    def test_edit_recommendation_changes_values(self):
+        lotr_id = self.repository.insert_recommendation(self.recom_lotr)
+        self.repository.edit_recommendation(self.new_values, lotr_id)
 
-        self.repository.edit_recommendation_title("Lord Of The Rings", recommendation.db_id)
+        edited_recommendation = self.repository.find_all_recommendations()[0]
 
-        self.assertEqual(self.repository.find_all_recommendations()[0].title, "Lord Of The Rings")
+        self.assertEqual(edited_recommendation.title, self.new_values["title"])
+        self.assertEqual(edited_recommendation.type, self.new_values["type"])
+        self.assertEqual(edited_recommendation.url, self.new_values["url"])
+        self.assertEqual(edited_recommendation.description, self.new_values["description"])
+        self.assertEqual(edited_recommendation.comment, self.new_values["comment"])
 
-    def test_edit_recommendation_title_returns_sqlite_error_on_db_error(self):
-        self.repository._run_db_command("DROP TABLE Recommendations")
+    def test_edit_recommendation_deletes_old_author(self):
+        author = self.recom_lotr["author"]
 
-        self.assertIsInstance(self.repository.edit_recommendation_title("Tohtori Sykerö", 1), sqlite3.OperationalError)
+        lotr_id = self.repository.insert_recommendation(self.recom_lotr)
+        self.repository.edit_recommendation(self.new_values, lotr_id)
 
-    def test_edit_recommendation_title_wont_change_anything_with_incorrect_db_id(self):
-        for recommendation in self.recommendations:
-            self.repository.insert_recommendation(recommendation)
+        author_list = self.repository._read_db(
+            "SELECT id FROM Authors WHERE author = ?;",
+            [author]
+        )
 
-        self.repository.edit_recommendation_title("Tohtori Sykerö", 666)
+        self.assertEqual(len(author_list), 0)
 
-        recommendations = [recom.title for recom in self.repository.find_all_recommendations()]
+    def test_edit_recommendation_creates_new_author(self):
+        lotr_id = self.repository.insert_recommendation(self.recom_lotr)
+        self.repository.edit_recommendation(self.new_values, lotr_id)
 
-        self.assertTrue("Tohtori Sykerö" not in recommendations)
+        author_list = self.repository._read_db(
+            "SELECT id FROM Authors WHERE author = ?;",
+            [self.new_values["author"]]
+        )
 
-    def test_edit_recommendation_type_edits_recommendation_type(self):
-        self.repository.insert_recommendation(self.recom_lotr)
-        recommendation = self.repository.find_recommendation_by_title("LOTR")
+        self.assertEqual(len(author_list), 1)
 
-        self.repository.edit_recommendation_type("blog", recommendation.db_id)
+    def test_edit_recommendation_creates_new_author_recommendation(self):
+        lotr_id = self.repository.insert_recommendation(self.recom_lotr)
 
-        self.assertEqual(self.repository.find_all_recommendations()[0].type, "blog")
+        self.repository.edit_recommendation(self.new_values, lotr_id)
 
-    def test_edit_recommendation_type_returns_sqlite_error_on_db_error(self):
-        self.repository._run_db_command("DROP TABLE Recommendations")
+        authrecoms = self.repository._read_db(
+            "SELECT author_id FROM AuthorRecommendations WHERE recom_id = ?;",
+            [lotr_id]
+        )
 
-        self.assertIsInstance(self.repository.edit_recommendation_type("video", 1), sqlite3.OperationalError)
+        authrecom_id = authrecoms[0]["author_id"]
 
-    def test_edit_recommendation_type_wont_change_anything_with_incorrect_db_id(self):
-        for recommendation in self.recommendations:
-            self.repository.insert_recommendation(recommendation)
+        authors = self.repository._read_db(
+            "SELECT id FROM Authors WHERE author = ?;",
+            [self.new_values["author"]]
+        )
 
-        self.repository.edit_recommendation_type("podcast", 666)
+        taikuri_id = authors[0]["id"]
 
-        recommendations = [recom.type for recom in self.repository.find_all_recommendations()]
-
-        self.assertTrue("podcast" not in recommendations)
+        self.assertEqual(authrecom_id, taikuri_id)
 
     def test_empty_tables_empties_tables(self):
         for recommendation in self.recommendations:
