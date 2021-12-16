@@ -1,7 +1,9 @@
 from repositories.recommendation_repository import RecommendationRepository as default_repo
 
+
 class UserInputError(Exception):
     pass
+
 
 class RecommendationService:
     """Provides functionality for safely communicating with the database repository"""
@@ -23,10 +25,9 @@ class RecommendationService:
 
         validated = self._validate_recommendation(recom_details)
 
-        validated = True
-
         if validated:
-            value = self._recommendation_repository.insert_recommendation(recom_details)
+            value = self._recommendation_repository.insert_recommendation(
+                recom_details)
 
             return value is None
 
@@ -49,9 +50,8 @@ class RecommendationService:
             True if the change was successful
             False otherwise
         """
-        
+
         validated = self._validate_recommendation({'title': new_title})
-        validated = True
 
         if validated:
             value = self._recommendation_repository.edit_recommendation_title(
@@ -76,7 +76,6 @@ class RecommendationService:
         """
 
         validated = self._validate_recommendation({'type': new_type})
-        validated = True
 
         if validated:
             value = self._recommendation_repository.edit_recommendation_type(
@@ -87,7 +86,7 @@ class RecommendationService:
             return value is None
 
         return False
-    
+
     def edit_recommendation(self, recom_details, index):
         """Edits a recommendation to match new values
         Checks to see if the new values given are valid
@@ -98,7 +97,7 @@ class RecommendationService:
 
         Returns:
             True if the edit was successful
-            False otherwise        
+            False otherwise
         """
         try:
             self._validate_recommendation(recom_details)
@@ -106,7 +105,8 @@ class RecommendationService:
             return False
 
         db_id = self._recommendations[index].db_id
-        self._recommendation_repository.edit_recommendation(recom_details, db_id)
+        self._recommendation_repository.edit_recommendation(
+            recom_details, db_id)
         return True
 
     def delete_recommendation(self, index):
@@ -119,23 +119,24 @@ class RecommendationService:
         return value is None
 
     def _validate_recommendation(self, recom_details):
-
         """Make sure that titles are unique and check that necessary fields for creating a Recommendation
         are provided"""
+        for field in ('title', 'type', 'author'):
+            if field in recom_details and len(recom_details[field]) < 1:
+                raise UserInputError(
+                    "Missing required information for creating Recommendation")
 
+        if 'type' in recom_details and 'url' in recom_details and recom_details["type"] != "book":
+            if len(recom_details["url"]) < 1:
+                raise UserInputError(
+                    "Missing required information for creating Recommendation")
 
-        if len(recom_details["title"]) <1 or len(recom_details["type"]) < 1 or len(recom_details["author"]) < 1:
-            raise UserInputError("Missing required information for creating Recommendation")
+        if 'title' in recom_details:
+            title = recom_details["title"]
+            existing = self._recommendation_repository.find_recommendation_by_title(
+                title)
+            if existing:
+                raise UserInputError(
+                    "Recommendation already exists with this title")
 
-        if recom_details["type"] != "book":
-            if len(recom_details["url"]) <1:
-                raise UserInputError("Missing required information for creating Recommendation")
-        
-        title = recom_details["title"]
-
-        existing = self._recommendation_repository.find_recommendation_by_title(title)
-        print (existing)
-
-        if existing:
-        
-            raise UserInputError("Recommendation already exists with this title")
+        return True
