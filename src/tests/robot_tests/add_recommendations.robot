@@ -58,4 +58,4 @@ Created Recommendation Is Displayed In Browse Mode
     Exit From Menu
     Exit From Menu
     Run Application
-    Output Should Contain  Book Name (book), Author: Author, ISBN: ISBN1000, Decription: This is a book., Comment: Good
+    Output Should Contain  Book Name (book), Author: Author, ISBN: ISBN1000, Description: This is a book., Comment: Good
