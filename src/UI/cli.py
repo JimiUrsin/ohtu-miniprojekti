@@ -130,7 +130,7 @@ class CLI:
 
     def _browse(self):
         all_items = self.service.get_recommendations()
-        if not all_items or len(all_items) < 1:
+        if not isinstance(all_items, list):
             self.io.write('You have no recommendations saved.')
             self.io.print_countdown(3)
         else:
@@ -151,7 +151,7 @@ class CLI:
         self.io.clear()
         all_items = self.service.get_recommendations()
 
-        if not all_items or len(all_items) < 1:
+        if not isinstance(all_items, list):
             self.io.write("You have no recommendations saved.")
             return None
 
