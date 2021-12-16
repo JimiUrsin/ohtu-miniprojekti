@@ -141,7 +141,7 @@ class CLI:
             self.io.read("\nPress Enter to return to the main menu")
 
     def _edit_or_delete_recommendation(self):
-        recommendation_chosen_for_editing = self._ask_for_recommendation_to_edit()
+        recommendation_chosen_for_editing = self._ask_which_recommendation_to_edit()
         if recommendation_chosen_for_editing:
             self._ask_edit_or_delete_recommendation(
                 recommendation_chosen_for_editing[0],
