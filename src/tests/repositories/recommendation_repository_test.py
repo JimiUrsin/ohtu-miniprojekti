@@ -198,13 +198,6 @@ class TestRecommendationRepository(unittest.TestCase):
         for key in recom:
             self.assertEqual(recom[key], self.recom_ds[key])
 
-    def test_insert_recommendation_returns_false_with_incorrect_insert(self):
-        recom_missingo = {
-            "title": "A Secrets of Cinnabar Island"
-        }
-
-        self.assertFalse(self.repository.insert_recommendation(recom_missingo))
-
     def test_insert_recommendation_returns_sqlite_error_when_db_error_on_recommendations_table(self):
         self.repository._run_db_command("DROP TABLE Recommendations")
 
