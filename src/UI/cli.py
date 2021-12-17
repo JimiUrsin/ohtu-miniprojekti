@@ -196,13 +196,15 @@ class CLI:
             if action == '2':
                 confirmation = self.io.read("Confirm deletition. 1: Delete, 0: Cancel ")
                 if confirmation == '1':
-                    success_deletition = self.service.delete_recommendation(recommendation_index)
-                    if not success_deletition:
-                        self.io.write("Deleting Recommendation was not successful")
-                    else:
+                    try:
+                        self.service.delete_recommendation(recommendation_index)
                         self.io.write("Recommendation deleted successfully!\n\n")
-                    break
 
+                    except Exception as error:
+                        self.io.write(str(error))
+
+                    break
+                
     def _print_recommendations(self, recommendations, display_index = False):
         for index, title in enumerate(recommendations):
             recommendation_string = f"{(index + 1)}: {title}" if display_index else title
