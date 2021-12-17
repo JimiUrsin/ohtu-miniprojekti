@@ -357,3 +357,13 @@ class TestRecommendationRepository(unittest.TestCase):
         self.repository.empty_tables()
 
         self.assertEqual(len(self.repository.find_all_recommendations()), 0)
+
+    def test_edit_recommendation_status_gets_false_when_no_such_table_Recommendations(self):
+        self.repository._run_db_command("DROP TABLE Recommendations")
+
+        self.assertFalse(self.repository.edit_recommendation(self.recom_ds, 1))
+
+    def test_edit_recommendation_status_gets_false_when_no_such_table_AuthorRecommendations(self):
+        self.repository._run_db_command("DROP TABLE AuthorRecommendations")
+
+        self.assertFalse(self.repository.edit_recommendation(self.recom_ds, 1))
