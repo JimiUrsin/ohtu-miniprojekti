@@ -108,7 +108,9 @@ class RecommendationService:
             self._recommendations[index].db_id
         )
 
-        return value is None
+        if value is None:
+            raise UserInputError("Deleting Recommendation was not successful")
+        value is int
 
     def _validate_recommendation(self, recom_details):
         """Make sure that titles are unique and check that necessary fields for creating a Recommendation
