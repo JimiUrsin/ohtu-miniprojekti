@@ -22,8 +22,9 @@ class RecommendationService:
         """
 
         validated = self._validate_recommendation(recom_details)
+        unique = self._check_uniqueness(recom_details['title'])
 
-        if validated:
+        if validated and unique:
             value = self._recommendation_repository.insert_recommendation(
                 recom_details)
 
@@ -36,50 +37,6 @@ class RecommendationService:
         self._recommendations = self._recommendation_repository.find_all_recommendations()
 
         return self._recommendations
-
-    def edit_recommendation_title(self, new_title, index):
-        """Edits the title of a given recommendation in the database
-        Args:
-            new_title: New title for the recommendation to be changed
-            index: Recommendation list index of the recommendation to be changed
-        Returns:
-            True if the change was successful
-            False otherwise
-        """
-
-        validated = self._validate_recommendation({'title': new_title})
-
-        if validated:
-            value = self._recommendation_repository.edit_recommendation_title(
-                new_title,
-                self._recommendations[index].db_id
-            )
-
-            return value is None
-
-        return False
-
-    def edit_recommendation_type(self, new_type, index):
-        """Edits the type of a given recommendation in the database
-        Args:
-            new_type: New type for the recommendation to be changed
-            index: Recommendation list index of the recommendation to be changed
-        Returns:
-            True if the change was successful
-            False otherwise
-        """
-
-        validated = self._validate_recommendation({'type': new_type})
-
-        if validated:
-            value = self._recommendation_repository.edit_recommendation_type(
-                new_type,
-                self._recommendations[index].db_id
-            )
-
-            return value is None
-
-        return False
 
     def edit_recommendation(self, recom_details, index):
         """Edits a recommendation to match new values
@@ -125,17 +82,17 @@ class RecommendationService:
                 raise UserInputError(
                     "Missing required information for creating Recommendation")
 
-        if 'title' in recom_details:
-            title = recom_details["title"]
-            existing = self._recommendation_repository.find_recommendation_by_title(
-                title)
-            if existing:
-                raise UserInputError(
-                    "Recommendation already exists with this title")
-
         for field in recom_details:
             if len(recom_details[field]) > 1000:
                 raise UserInputError(
                     f"{field} is too long")
 
+        return True
+
+    def _check_uniqueness(self, title):
+        existing = self._recommendation_repository.find_recommendation_by_title(
+            title)
+        if existing:
+            raise UserInputError(
+                "Recommendation already exists with this title")
         return True
