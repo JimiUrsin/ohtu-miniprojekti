@@ -50,44 +50,6 @@ class TestRecommendationService(unittest.TestCase):
 
         self.repo_mock.find_all_recommendations.assert_called()
 
-    def test_edit_recommendation_title_calls_repository_correctly(self):
-        mock_recommendation = Mock()
-        mock_recommendation.db_id = 1
-        self.service._recommendations = [mock_recommendation]
-        self.repo_mock.edit_recommendation_title.return_value = None
-        self.service.edit_recommendation_title("Taikuri Luttinen", 0)
-        self.repo_mock.edit_recommendation_title.assert_called_with(
-            "Taikuri Luttinen", 1)
-
-    def test_edit_recommendation_title_returns_true_when_success(self):
-        mock_recommendation = Mock()
-        mock_recommendation.db_id = 1
-        self.service._recommendations = [mock_recommendation]
-        self.repo_mock.edit_recommendation_title.return_value = None
-        value = self.service.edit_recommendation_title("Taikuri Luttinen", 0)
-
-        self.assertTrue(value)
-
-    def test_edit_recommendation_title_raises_error_when_too_short(self):
-        with self.assertRaises(UserInputError):
-            mock_recommendation = Mock()
-            mock_recommendation.db_id = 1
-            self.service._recommendations = [mock_recommendation]
-            self.repo_mock.edit_recommendation_title.return_value = None
-            value = self.service.edit_recommendation_title("", 0)
-
-    def test_edit_recommendation_type_calls_repository_correctly(self):
-        self.repo_mock.edit_recommendation_type.return_value = None
-        self.service.edit_recommendation_type("podcast", 0)
-        self.repo_mock.edit_recommendation_type.assert_called_with(
-            "podcast", 1)
-
-    def test_edit_recommendation_type_returns_true_when_success(self):
-        self.repo_mock.edit_recommendation_type.return_value = None
-        value = self.service.edit_recommendation_type("podcast", 0)
-
-        self.assertTrue(value)
-
     def test_edit_recommendation_returns_true_with_valid_input(self):
         success = self.service.edit_recommendation({'comment': 'awesome'}, 0)
         self.assertTrue(success)
@@ -102,4 +64,4 @@ class TestRecommendationService(unittest.TestCase):
     def test_error_raised_when_adding_duplicate_title(self):
         with self.assertRaises(UserInputError):
             self.repo_mock.find_recommendation_by_title.return_value = True
-            self.service._validate_recommendation({'title': 'Abc'})
+            self.service._check_uniqueness('Abc')
