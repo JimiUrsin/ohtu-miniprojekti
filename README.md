@@ -9,6 +9,9 @@ With a recommendation library an user could save a different types of recommenda
 ### Backlog
 The project backlog can be found [here.](https://docs.google.com/spreadsheets/d/1ZCnf0xEJmRW_xmrL4qNMVAfHpwGppWr4FDTXN3Vao3w/edit#gid=1)
 
+### Final report (loppuraportti)
+The final report can be found [here.](https://docs.google.com/document/d/1qpovECIUg88Y2FXoEFxvmMpB0PRz308Tb4Qv90qqJTk/edit)
+
 ### Definition of done
 A story is considered to be done when:
 - The requirements of the user story have been analysed
