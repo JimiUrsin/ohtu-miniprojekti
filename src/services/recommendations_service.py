@@ -82,12 +82,16 @@ class RecommendationService:
                 raise UserInputError(
                     "Missing required information for creating Recommendation")
 
-        for field in recom_details:
-            if len(recom_details[field]) > 1000:
-                raise UserInputError(
-                    f"{field} is too long")
+        if self._field_too_long(recom_details):
+            raise UserInputError(f"{field} is too long")
 
         return True
+    
+    def _field_too_long(self, recom_details):
+        for field in recom_details:
+            if len(recom_details[field]) > 1000:
+                return True
+        return False
 
     def _check_uniqueness(self, title):
         existing = self._recommendation_repository.find_recommendation_by_title(
