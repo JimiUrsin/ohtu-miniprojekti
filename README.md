@@ -58,5 +58,3 @@ When editing a recommendation, first enter the index number of the recommendatio
 
 When willing to quit, choosing "Quit" shuts down the application.
 
-
-
